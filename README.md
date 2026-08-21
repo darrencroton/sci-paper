@@ -13,7 +13,7 @@ The astronomer is the verifier. The system never claims a number, method or cita
 | | |
 |---|---|
 | Design | complete — see [`docs/astro-paper - Plan.md`](docs/astro-paper%20-%20Plan.md) |
-| Implementation | **P2 done — the minimum useful system.** `/paper-start` and `/paper-draft` take a real `notes/` + `figures/` + `code/` directory to a compiling, honestly-incomplete body draft. P3 (`tools/ads.py`, `/paper-lit`) next |
+| Implementation | **P3 done.** `/paper-start` and `/paper-draft` take a real `notes/` + `figures/` + `code/` directory to a compiling, honestly-incomplete body draft; `tools/ads.py` and `/paper-lit` add the literature arm — novelty, build-on, support/contradict and mining, with BibTeX verbatim from ADS. P4 (`/paper-iterate`) next |
 
 ## What is here
 
@@ -22,13 +22,15 @@ docs/
 ├── astro-paper - Plan.md                        # the design. start here
 ├── astro-paper - Corpus Evidence.md             # measurements over six published papers
 └── astro-paper - Ecosystem Research Record.md   # survey of ~14 comparable projects + ADS API facts
+tools/ads.py                                     # the only script: ADS/SciX, stdlib only
 skills/
 ├── _shared/
-│   ├── memory.md                                # what to read first, what to write last
+│   ├── memory.md                                # what to read first, what to write last, paper/lit/
 │   ├── house-rules.md                           # integrity rules, gap markers, % src:, editing
 │   └── sections/                                # rhetorical moves per section role — data, not skills
 ├── paper-start/SKILL.md                         # ingest, look at the figures, propose the argument
-└── paper-draft/SKILL.md                         # write one section; mark what it cannot answer
+├── paper-draft/SKILL.md                         # write one section; mark what it cannot answer
+└── paper-lit/SKILL.md                           # query craft and the four literature modes
 skeleton/                                        # copied into a paper repo by /paper-start
 ├── CLAUDE.md
 ├── paper/                                       # STATE, journal, outline, open questions, lit
@@ -37,7 +39,7 @@ skeleton/                                        # copied into a paper repo by /
 
 ## Shape of it
 
-Six skills, one ~200-line stdlib script for ADS access, and a ~25-line LaTeX package. No MCP servers, no databases, no schemas. Almost all the value is in how specific the skill files are, not in the code.
+Six skills, one 396-line stdlib script for ADS access, and a 124-line LaTeX package — the gap-marker macro plus the AAS journal abbreviations that verbatim ADS BibTeX needs. No MCP servers, no databases, no schemas. Almost all the value is in how specific the skill files are, not in the code.
 
 - `/paper-start` — read the notes, look at the figures, propose an argument and a list of questions
 - `/paper-draft` — write a section from notes, code or figures; mark what it cannot answer

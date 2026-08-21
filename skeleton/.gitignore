@@ -8,3 +8,5 @@
 *.fdb_latexmk
 *.synctex.gz
 .DS_Store
+__pycache__/
+*.pyc

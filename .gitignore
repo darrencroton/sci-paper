@@ -5,6 +5,8 @@
 *.blg
 *.synctex.gz
 .DS_Store
+__pycache__/
+*.pyc
 .orchestrator/
 docs/archive/
 HANDOFF.md

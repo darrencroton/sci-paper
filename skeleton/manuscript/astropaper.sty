@@ -42,3 +42,83 @@
   \DeclareRobustCommand{\gap}[2]{\textcolor{red}{\textbf{[GAP #1: #2]}}\ap@margin{#1}}
 \fi
 \makeatother
+
+% ---------------------------------------------------------------------------
+% AAS journal abbreviation macros.
+%
+% BibTeX from `ads.py export` is verbatim (house rule 2), and ADS writes
+% journal names as these macros: journal = {\mnras}. A real journal class
+% defines them; the plain `article` class the scaffold starts with does not, so
+% without this block the very first exported reference fails the build with
+% "Undefined control sequence \apj" -- which makes the verbatim rule unusable
+% for as long as the venue is undecided, and that is deliberately most of the
+% project.
+%
+% \providecommand is what makes this safe: a journal class defines these before
+% any package loads, so its versions win and only what is still missing gets
+% filled in. \AtBeginDocument widens that window to cover a package loaded
+% after this one. It is defensive rather than necessary, and it is not a
+% guarantee -- a class that defines these from its own \AtBeginDocument hook
+% registered after ours would still clash. No astronomy class does.
+% ---------------------------------------------------------------------------
+
+\AtBeginDocument{%
+\providecommand{\aj}{AJ}%                       Astronomical Journal
+\providecommand{\actaa}{Acta Astron.}%
+\providecommand{\araa}{ARA\&A}%                 Annual Review of A\&A
+\providecommand{\apj}{ApJ}%                     Astrophysical Journal
+\providecommand{\apjl}{ApJ}%                    ApJ Letters
+\providecommand{\apjs}{ApJS}%                   ApJ Supplement
+\providecommand{\ao}{Appl.~Opt.}%
+\providecommand{\apss}{Ap\&SS}%
+\providecommand{\aap}{A\&A}%                    Astronomy and Astrophysics
+\providecommand{\aapr}{A\&A~Rev.}%
+\providecommand{\aaps}{A\&AS}%
+\providecommand{\azh}{AZh}%
+\providecommand{\baas}{BAAS}%
+\providecommand{\bac}{Bull. astr. Inst. Czechosl.}%
+\providecommand{\caa}{Chinese Astron. Astrophys.}%
+\providecommand{\cjaa}{Chinese J. Astron. Astrophys.}%
+\providecommand{\icarus}{Icarus}%
+\providecommand{\jcap}{J. Cosmology Astropart. Phys.}%
+\providecommand{\jrasc}{JRASC}%
+\providecommand{\mnras}{MNRAS}%                 Monthly Notices of the RAS
+\providecommand{\memras}{MmRAS}%
+\providecommand{\na}{New A}%
+\providecommand{\nar}{New A Rev.}%
+\providecommand{\pra}{Phys.~Rev.~A}%
+\providecommand{\prb}{Phys.~Rev.~B}%
+\providecommand{\prc}{Phys.~Rev.~C}%
+\providecommand{\prd}{Phys.~Rev.~D}%
+\providecommand{\pre}{Phys.~Rev.~E}%
+\providecommand{\prl}{Phys.~Rev.~Lett.}%
+\providecommand{\psj}{Planet. Sci. J.}%
+\providecommand{\pasa}{PASA}%
+\providecommand{\pasp}{PASP}%
+\providecommand{\pasj}{PASJ}%
+\providecommand{\raa}{Res. Astron. Astrophys.}%
+\providecommand{\rmxaa}{Rev. Mexicana Astron. Astrofis.}%
+\providecommand{\qjras}{QJRAS}%
+\providecommand{\skytel}{S\&T}%
+\providecommand{\solphys}{Sol.~Phys.}%
+\providecommand{\sovast}{Soviet~Ast.}%
+\providecommand{\ssr}{Space~Sci.~Rev.}%
+\providecommand{\zap}{ZAp}%
+\providecommand{\nat}{Nature}%
+\providecommand{\iaucirc}{IAU~Circ.}%
+\providecommand{\aplett}{Astrophys.~Lett.}%
+\providecommand{\apspr}{Astrophys.~Space~Phys.~Res.}%
+\providecommand{\bain}{Bull.~Astron.~Inst.~Netherlands}%
+\providecommand{\fcp}{Fund.~Cosmic~Phys.}%
+\providecommand{\gca}{Geochim.~Cosmochim.~Acta}%
+\providecommand{\grl}{Geophys.~Res.~Lett.}%
+\providecommand{\jcp}{J.~Chem.~Phys.}%
+\providecommand{\jgr}{J.~Geophys.~Res.}%
+\providecommand{\jqsrt}{J.~Quant.~Spec.~Radiat.~Transf.}%
+\providecommand{\memsai}{Mem.~Soc.~Astron.~Italiana}%
+\providecommand{\nphysa}{Nucl.~Phys.~A}%
+\providecommand{\physrep}{Phys.~Rep.}%
+\providecommand{\physscr}{Phys.~Scr}%
+\providecommand{\planss}{Planet.~Space~Sci.}%
+\providecommand{\procspie}{Proc.~SPIE}%
+}

@@ -154,7 +154,7 @@ reader sees lives in the `\section{}` line, not in the path.
 
   Never overwrite an author figure, and never choose between two versions of one
   figure without asking which is current.
-- Copy units and $h$-scalings exactly as the source writes them. Never convert.
+- Units and $h$-scalings are copied, never converted — `_shared/house-rules.md`.
 - Write the gap markers as you go, with a note that says what would fill them —
   `\gap{number}{need the value from run 3}`, not `\gap{number}{TBD}`.
 

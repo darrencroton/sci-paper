@@ -115,6 +115,13 @@ note, a table, an explicit annotation, or the code or data behind the plot.
 Prose that quotes a point read off a plot to three significant figures is false
 precision no matter how good the trace looks.
 
+**Copy units and $h$-scalings exactly as the source writes them, and record
+which convention the source used. Never convert.** A comparison silently made
+between $h^{-1}M_\odot$ and $M_\odot$ is the commonest way a comparison goes
+wrong, and it survives every proofread because both numbers are correct. The
+same holds for an IMF, a cosmology and an aperture: they travel with the
+number or the number is not usable.
+
 **Code is read, never run.** A `% src:` anchor into `code/` points at a
 definition or a literal in the source; it never means anything was executed. A
 result that exists only as the *output* of a run, written down nowhere, has no

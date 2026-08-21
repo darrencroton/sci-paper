@@ -119,13 +119,55 @@ the way it is.
 
 ## Literature notes
 
-`paper/lit/index.md` is a flat roster: one line per paper — bibcode, short
-handle, why it is in play, whether it has been read.
+`paper/lit/index.md` is a flat roster — one row per paper that has entered play,
+whether or not it has been read:
 
-`paper/lit/<bibcode>.md` exists **only for papers actually read in depth**, and
-holds what the paper says, what we take from it, and any numbers or table rows
-with their exact source location. The asymmetry is deliberate: a stub file per
-search hit would be hundreds of empty files.
+```markdown
+| Bibcode | Handle | Why it is in play | Read |
+|---|---|---|---|
+| 2006MNRAS.365...11C | Croton+06 | the radio-mode model we compare against | yes |
+| 2015MNRAS.451.2663H | Henriques+15 | later calibration of the same model | no |
+```
+
+The *Handle* is what the prose calls the paper. *Why it is in play* is one
+clause, and it is the field that stops the same paper being chased twice in
+three months' time.
+
+`paper/lit/<bibcode>.md` exists **only for papers actually read in depth**. The
+asymmetry is deliberate: a stub file per search hit would be hundreds of empty
+files. The filename is the bibcode exactly as ADS writes it, `.md` appended —
+`2013ARA&A..51..511K.md`. Bibcodes contain `&` and `.`, which are fine in a
+filename but need quoting in a shell.
+
+```markdown
+# 2006MNRAS.365...11C — Croton+06
+
+**Read:** 2026-08-21 · [ADS](https://ui.adsabs.harvard.edu/abs/2006MNRAS.365...11C)
+
+## What it does
+<two or three sentences: the sample or simulation, the method, the headline result>
+
+## Why it matters here
+<what this paper takes from it, or argues against — one paragraph>
+
+## Extracted values
+| Value | Where in the paper | Notes |
+|---|---|---|
+| $M_{\rm crit} = 10^{12.5}\,h^{-1}M_\odot$ | Table 2, row 3 | their $h=0.73$, Chabrier IMF |
+| bright-end slope steepens above $L^*$ | Fig. 8 — **visual estimate** | not quoted as a measured value |
+
+## Caveats
+<sample limits, cosmology, IMF, mass definition, aperture, resolution — whatever
+would make a comparison unfair. Each one names where in the paper it is stated,
+the same as a value does: these live in a methods section nobody will find again
+without the pointer, and they are what decides whether a comparison is fair at all.>
+```
+
+**Every extracted value names where in the paper it came from** — the table and
+row, the equation number, the section. That location is what a `% src:` into
+this file eventually points at. The visual-estimate rule in
+`_shared/house-rules.md` applies to these notes too, and the label is written
+here rather than left to be remembered, so that it travels with the number.
 
 ---
 
