@@ -1,0 +1,9 @@
+.build/
+*.aux
+*.log
+*.bbl
+*.blg
+*.synctex.gz
+.DS_Store
+.orchestrator/
+docs/archive/
