@@ -3,9 +3,8 @@
 *.log
 *.bbl
 *.blg
+*.out
+*.fls
+*.fdb_latexmk
 *.synctex.gz
 .DS_Store
-.orchestrator/
-docs/archive/
-HANDOFF.md
-.dogfood/

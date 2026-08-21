@@ -1,0 +1,42 @@
+% Manuscript root. Scaffolded by /paper-start; edited freely thereafter.
+%
+% Draft mode is the default. To build in final mode -- which fails while any
+% \gap remains -- change the astropaper line below to:
+%     \usepackage[final]{astropaper}
+%
+% Venue: not yet chosen. Switching venue is a preamble change plus a re-fetch
+% of the journal class into this directory; the prose does not care.
+
+\documentclass[11pt]{article}
+
+\usepackage{astropaper}
+\usepackage{graphicx}
+\usepackage{natbib}
+
+\graphicspath{{../figures/}}
+
+\title{\gap{todo}{title -- /paper-frame writes it last}}
+\author{Author list}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\gap{todo}{abstract -- /paper-frame writes it last}
+\end{abstract}
+
+% Sections are \input in the order set by paper/outline.md, under whatever
+% headings this paper actually uses. Uncomment as they are drafted.
+%
+% \input{sections/01_introduction}
+% \input{sections/02_methods}
+% \input{sections/03_results}
+% \input{sections/04_discussion}
+% \input{sections/05_conclusions}
+
+% Uncomment once refs.bib has its first entry (verbatim from ads.py export).
+% \bibliographystyle{plainnat}
+% \bibliography{refs}
+
+\end{document}

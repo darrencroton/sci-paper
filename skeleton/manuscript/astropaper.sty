@@ -1,0 +1,44 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{astropaper}[2026/08/21 v1.0 honest gap markers for incomplete drafts]
+
+% \gap{kind}{note} -- kinds: number, cite, q, logic, todo
+%   default (draft): renders loudly inline and in the margin
+%   [final]:         every invocation raises a package error and the build fails
+% The error fires on invocation, never at load: a gap-free manuscript must
+% build cleanly under [final], or the mechanism is worthless.
+
+\newif\ifap@final
+\DeclareOption{draft}{\ap@finalfalse}
+\DeclareOption{final}{\ap@finaltrue}
+\ProcessOptions\relax
+
+\RequirePackage{xcolor}
+% marginnote, not \marginpar. \marginpar goes through LaTeX's float mechanism,
+% which raises "Not in outer par mode" or loses the float outright when the
+% marker sits in a minipage, a footnote or a float -- all ordinary places for a
+% gap in an astronomy manuscript. \marginnote places the note directly and
+% works in every one of them. A marker that breaks the build is worse than a
+% marker with no margin note.
+\RequirePackage{marginnote}
+
+\makeatletter
+% The margin carries the *kind* only, deliberately. The inline marker already
+% carries the full note; repeating it in the margin would overflow and compete
+% with it. What the margin is for is scanning a page edge and seeing at a glance
+% that this page holds two numbers and a citation.
+% Still illegal in math mode; there the inline marker stands alone.
+\newcommand{\ap@margin}[1]{%
+  \ifmmode\else
+    \marginnote{\footnotesize\raggedright\textcolor{red}{#1}}%
+  \fi}
+% Robust in both modes: a \gap in a caption or a section heading is written to
+% the .aux and read back, and a fragile macro would expand into formatting
+% internals there instead of surviving as itself.
+\ifap@final
+  \DeclareRobustCommand{\gap}[2]{%
+    \PackageError{astropaper}{Unfilled \string\gap{#1} in final mode: #2}%
+      {Fill this gap, or drop the [final] option in main.tex to build a draft.}}
+\else
+  \DeclareRobustCommand{\gap}[2]{\textcolor{red}{\textbf{[GAP #1: #2]}}\ap@margin{#1}}
+\fi
+\makeatother

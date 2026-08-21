@@ -1,6 +1,6 @@
 # astro-paper
 
-**Work in progress — design stage. Nothing is built yet.**
+**Work in progress — build under way.**
 
 A small set of [Claude Code](https://claude.com/claude-code) skills that help a working astronomer turn notes, figures, tables and analysis code into a journal paper — and then keep working on it for as long as it takes.
 
@@ -13,15 +13,26 @@ The astronomer is the verifier. The system never claims a number, method or cita
 | | |
 |---|---|
 | Design | complete — see [`docs/astro-paper - Plan.md`](docs/astro-paper%20-%20Plan.md) |
-| Implementation | not started |
+| Implementation | **P2 done — the minimum useful system.** `/paper-start` and `/paper-draft` take a real `notes/` + `figures/` + `code/` directory to a compiling, honestly-incomplete body draft. P3 (`tools/ads.py`, `/paper-lit`) next |
 
 ## What is here
 
-```
+```text
 docs/
 ├── astro-paper - Plan.md                        # the design. start here
 ├── astro-paper - Corpus Evidence.md             # measurements over six published papers
 └── astro-paper - Ecosystem Research Record.md   # survey of ~14 comparable projects + ADS API facts
+skills/
+├── _shared/
+│   ├── memory.md                                # what to read first, what to write last
+│   ├── house-rules.md                           # integrity rules, gap markers, % src:, editing
+│   └── sections/                                # rhetorical moves per section role — data, not skills
+├── paper-start/SKILL.md                         # ingest, look at the figures, propose the argument
+└── paper-draft/SKILL.md                         # write one section; mark what it cannot answer
+skeleton/                                        # copied into a paper repo by /paper-start
+├── CLAUDE.md
+├── paper/                                       # STATE, journal, outline, open questions, lit
+└── manuscript/                                  # main.tex + astropaper.sty
 ```
 
 ## Shape of it
