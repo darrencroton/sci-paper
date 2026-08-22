@@ -20,9 +20,12 @@ procedure, and running the wrong one wastes the search.
 
 ## Before anything
 
+Work from the workspace root, which `CLAUDE.md` names and
+`_shared/house-rules.md` defines; every path below is relative to it.
+
 Read `paper/STATE.md` in full first — the first action of every session. Then,
-from the astro-paper installation (`../_shared/` relative to this skill; the
-paper repo's `CLAUDE.md` names the install path if that does not resolve):
+from the astro-paper installation (`../_shared/` relative to this skill — its
+**Locating the installation** section is what resolves `<astro-paper>` below):
 
 - `_shared/memory.md` — including its **Literature notes** section, which owns
   the format of `paper/lit/index.md` and of a `<bibcode>.md` note

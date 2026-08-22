@@ -12,7 +12,7 @@ exist and get written. That is the whole mechanism.
 
 | File | Read | Lifespan | Holds |
 |---|---|---|---|
-| `CLAUDE.md` | automatically | stable | **how to behave** — house rules, directory map, venue, build command, the pointer to `STATE.md` |
+| `CLAUDE.md` | automatically | stable | **how to behave, and where things are** — the workspace root, the astro-paper install path, the directory map, venue, build command, the pointer to `STATE.md` |
 | `paper/STATE.md` | first action of every session | **only true today** | **where we are** — section status, what is settled, what is open, what to do next |
 | `paper/journal.md` | on demand | permanent | **how we got here** — dated entries: discussed, decided, changed, open |
 
@@ -26,8 +26,11 @@ because nothing ever prompts a review of it.
 
 ## First action of every session
 
-Read `paper/STATE.md` in full — all of it, without deciding whether to. It is
-capped at two pages precisely so this is cheap.
+**Find the workspace root first** — `CLAUDE.md` names it, and
+`house-rules.md` has the rule. Every path in this file is relative to it.
+
+Then read `paper/STATE.md` in full — all of it, without deciding whether to. It
+is capped at two pages precisely so this is cheap.
 
 Then, only as the work requires:
 

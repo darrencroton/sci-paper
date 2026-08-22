@@ -9,5 +9,7 @@ __pycache__/
 *.pyc
 .orchestrator/
 docs/archive/
+archive/
 HANDOFF.md
+.claude/
 .dogfood/

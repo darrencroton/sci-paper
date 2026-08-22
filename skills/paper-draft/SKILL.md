@@ -13,10 +13,13 @@ finished when it is not is the failure mode this skill exists to avoid.
 
 ## Before anything
 
+Work from the workspace root, which `CLAUDE.md` names and
+`_shared/house-rules.md` defines; every path below is relative to it.
+
 Read `paper/STATE.md` in full first — it is the first action of every session,
 and nothing here changes that. Then, from the astro-paper installation
-(`../_shared/` relative to this skill; the paper repo's `CLAUDE.md` names the
-install path if that does not resolve):
+(`../_shared/` relative to this skill — `_shared/house-rules.md` gives the rule
+for resolving the installation root if a path above `skills/` is needed):
 
 - `_shared/memory.md`
 - `_shared/house-rules.md`
@@ -211,6 +214,8 @@ instead of pointing at `03_quenching_of_satellites` is a file-not-found the
 build will catch a step later for no reason.
 
 ## 7. Build and report
+
+From the workspace root:
 
 ```sh
 (cd manuscript && latexmk -pdf -interaction=nonstopmode -outdir=../.build main.tex)

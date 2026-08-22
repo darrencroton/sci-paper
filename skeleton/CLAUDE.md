@@ -2,6 +2,9 @@
 
 A paper workspace. Sessions here work under the astro-paper skills.
 
+**Workspace root:** `<workspace root>` --- every path below is relative to it.
+`.` means this directory is the workspace.
+
 ## First action, every session
 
 1. Read `paper/STATE.md` in full. It is capped at two pages so that it can be
@@ -16,6 +19,9 @@ commands are shortcuts, not an interface anyone has to learn.
 
 ## Directory map
 
+Author-owned paths are the ones this paper actually uses --- edit the rows below
+to match, and delete any that do not exist.
+
 | Path | Owner | |
 |---|---|---|
 | `notes/` | author | free-form markdown; modified only on an explicit "capture that" |
@@ -24,6 +30,10 @@ commands are shortcuts, not an interface anyone has to learn.
 | `paper/` | agent | the project's memory: `STATE.md`, `journal.md`, `outline.md`, `open-questions.md`, `lit/` |
 | `manuscript/` | shared | the author edits this directly and constantly |
 | `.build/` | build | gitignored |
+
+`paper/`, `manuscript/` and `.build/` are always directly inside the workspace
+root. The author's directories are wherever the author keeps them, which may be
+outside it --- a path such as `../analysis/` is normal and correct.
 
 Everything except `.build/` is committed. The diffs of `paper/` are the record
 of how the paper was thought through.
@@ -36,11 +46,13 @@ changing the preamble.
 
 ## Build
 
-    cd manuscript && latexmk -pdf -interaction=nonstopmode -outdir=../.build main.tex
+From the workspace root:
+
+    (cd manuscript && latexmk -pdf -interaction=nonstopmode -outdir=../.build main.tex)
 
 Keep `-interaction=nonstopmode`. Without it a LaTeX error waits at the
 interactive `?` prompt and the build hangs instead of failing.
 
 Draft mode is the default. Final mode is the `[final]` option on
-`\usepackage{astropaper}` in `main.tex`; it fails the build while any `\gap`
+\usepackage{astropaper} in `main.tex`; it fails the build while any `\gap`
 remains.

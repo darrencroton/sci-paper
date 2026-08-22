@@ -12,29 +12,26 @@ The astronomer is the verifier. The system never claims a number, method or cita
 
 | | |
 |---|---|
-| Design | complete — see [`docs/astro-paper - Plan.md`](docs/astro-paper%20-%20Plan.md) |
+| Design | complete — see [`docs/astro-paper - Plan.md`](docs/astro-paper%20-%20Plan.md), which is also the build record |
 | Implementation | **P3 done.** `/paper-start` and `/paper-draft` take a real `notes/` + `figures/` + `code/` directory to a compiling, honestly-incomplete body draft; `tools/ads.py` and `/paper-lit` add the literature arm — novelty, build-on, support/contradict and mining, with BibTeX verbatim from ADS. P4 (`/paper-iterate`) next |
 
 ## What is here
 
 ```text
-docs/
-├── astro-paper - Plan.md                        # the design. start here
-├── astro-paper - Corpus Evidence.md             # measurements over six published papers
-└── astro-paper - Ecosystem Research Record.md   # survey of ~14 comparable projects + ADS API facts
-tools/ads.py                                     # the only script: ADS/SciX, stdlib only
+docs/astro-paper - Plan.md   # the design, the build record and the status. start here
+tools/ads.py                 # the only script: ADS/SciX, stdlib only
 skills/
 ├── _shared/
-│   ├── memory.md                                # what to read first, what to write last, paper/lit/
-│   ├── house-rules.md                           # integrity rules, gap markers, % src:, editing
-│   └── sections/                                # rhetorical moves per section role — data, not skills
-├── paper-start/SKILL.md                         # ingest, look at the figures, propose the argument
-├── paper-draft/SKILL.md                         # write one section; mark what it cannot answer
-└── paper-lit/SKILL.md                           # query craft and the four literature modes
-skeleton/                                        # copied into a paper repo by /paper-start
+│   ├── memory.md            # what to read first, what to write last, paper/lit/
+│   ├── house-rules.md       # integrity rules, gap markers, % src:, the workspace root
+│   └── sections/            # rhetorical moves per section role — data, not skills
+├── paper-start/SKILL.md     # ingest, look at the figures, propose the argument
+├── paper-draft/SKILL.md     # write one section; mark what it cannot answer
+└── paper-lit/SKILL.md       # query craft and the four literature modes
+skeleton/                    # copied into a paper workspace by /paper-start
 ├── CLAUDE.md
-├── paper/                                       # STATE, journal, outline, open questions, lit
-└── manuscript/                                  # main.tex + astropaper.sty
+├── paper/                   # STATE, journal, outline, open questions, lit
+└── manuscript/              # main.tex + astropaper.sty
 ```
 
 ## Shape of it
@@ -48,7 +45,17 @@ Six skills, one 396-line stdlib script for ADS access, and a 124-line LaTeX pack
 - `/paper-frame` — Introduction, Conclusions, Abstract, Title, from the established body
 - `/paper-finish` — sweep the gaps, fill the references, check the venue, build
 
+`/paper-iterate`, `/paper-frame` and `/paper-finish` are the remaining phases.
+
+## Using it
+
+Install once, globally: this repo is composed into a shared agent home (the `ai-agent-home` repo) as a manifest-managed clone, which links every `skills/*/SKILL.md` into the one catalogue each harness reads. The skills are then available from any working directory.
+
+`/paper-start` scaffolds a paper **workspace** — by default a named subdirectory of wherever you are, so a paper can be written inside an existing project without taking it over. Your `CLAUDE.md` and `.gitignore` are appended to, never overwritten. Everything the paper needs lives under the workspace root.
+
 Between sessions the project remembers itself in `paper/` — a short living state file, an append-only journal, the argument spine, open questions, and literature notes. A new conversation picks up where the last one stopped.
+
+Needs an [ADS/SciX API token](https://ui.adsabs.harvard.edu/user/settings/token) and `latexmk`. No third-party Python packages, no node, no MCP client.
 
 ## Licence
 

@@ -1,11 +1,20 @@
 # astro-paper — Plan
 
-**Version:** 1.0
-**Date:** 2026-08-21
+**Version:** 2.0
+**Date:** 2026-08-22
 **Author:** Darren Croton (Swinburne), with Claude Opus 5
-**Status:** ready to build
+**Status:** P1–P3 built and validated · P4 next
 
-> **Relationship to earlier work.** This supersedes an earlier design that solved a different problem: mechanically verifying a finished manuscript's integrity via approval registries, gates and deterministic checkers. On author direction that project is abandoned. The author is the verifier and reads the paper in detail, repeatedly. What is needed instead is a **writing collaborator with durable memory and a strong literature arm**. Two supporting documents survive and remain valid: `astro-paper - Corpus Evidence.md` and `astro-paper - Ecosystem Research Record.md`.
+> **This document is the specification and the build record.** §1–§13 are the design and are the authority on what gets built. §14–§16 record what has actually been built, what was verified and how, which decisions are settled, and how the system is installed. There is no separate status document: if something matters and is durable, it is here.
+
+> **Revision history.**
+> **v1.0** (2026-08-21) — first design after the superseded v5.1 project was abandoned.
+> **v1.1** — external panel round 1 (`codex`/gpt-5.6-sol and `opencode`/opencode-go/hy3, read-only, high effort, staggered starts). No P0. Both independently found the same worst defect: §6.2's number rule forbade the very figure- and code-derived values that §7.2 makes first-class drafting sources. Fixed by unifying traceability into one rule. Also fixed: the draft could overwrite the author's own edits; `outline.md` and `STATE.md` both claimed the argument; `% src:` used fragile line anchors; `/paper-frame` used a soft status as a hard gate; the gap guarantee was overclaimed; the `.sty` final-mode trigger was ambiguous; venue conformance was asserted with no mechanism.
+> **v1.2** — panel rounds 2 and 3. Added the "capture that" exception to the never-edit-notes rule (§3), widened the legitimate `% src:` sources, and settled the `article`-class default when no venue is chosen. This revision was mislabelled `1.0` in its own header, which is how it came to be found.
+> **v2.0** (2026-08-22) — the build record folded in, and one design change. §11 carries per-phase status and evidence; §14 the validation record; §15 the settled decisions and the approaches already declined; §16 installation. The two supporting evidence documents (`Corpus Evidence.md`, `Ecosystem Research Record.md`) were retired to the local, untracked `docs/archive/`: every judgement they still supported is now stated here directly, so nothing in this plan depends on reading them.
+> The design change is §4.1, the **workspace root**. Preparing the system for global installation exposed the assumption that the working directory *is* the paper — so in a real project directory `/paper-start` skipped the existing `CLAUDE.md` and `.gitignore` rather than merging into them, and left the workspace looking scaffolded while nothing pointed a session at `paper/STATE.md`. The paper now scaffolds into a named subdirectory of the working directory by default, with the root `CLAUDE.md` and `.gitignore` appended to. The layout *inside* the workspace is unchanged, so P1–P3 remain valid; §14.2 records that the new path is specified and not yet dogfooded.
+
+> **Relationship to earlier work.** This supersedes an earlier design that solved a different problem: mechanically verifying a finished manuscript's integrity via approval registries, gates and deterministic checkers. On author direction that project is abandoned. The author is the verifier and reads the paper in detail, repeatedly. What is needed instead is a **writing collaborator with durable memory and a strong literature arm**. Why that design was abandoned rather than trimmed is in §12 and §15.
 
 ---
 
@@ -43,11 +52,35 @@ The system must work equally well at both ends of that journey — a pile of hal
 
 ## 4. Workspace layout
 
-The system is installed once. Each paper gets a workspace scaffolded into its own repository by `/paper-start`.
+The system is installed once (§16). Each paper gets a **workspace** scaffolded by `/paper-start`.
+
+### 4.1 The workspace root
+
+A paper is almost never written in an empty directory. The normal case is an existing science project — data, analysis code, its own git repo and often its own `CLAUDE.md` — into which a paper is now being written. So the workspace is **a named subdirectory of the working directory**, and every path the skills use is relative to that subdirectory, called the *workspace root*.
 
 ```
-<paper repo>/
-├── CLAUDE.md              # scaffolded: house rules + pointer to STATE.md
+my-project/                      # the working directory — the author's, untouched
+├── CLAUDE.md                    # gets an appended astro-paper block naming the workspace
+├── .gitignore                   # gets the build-artefact lines appended
+├── data/  src/  ...             # untouched
+└── paper-quenching/             # THE WORKSPACE ROOT
+    ├── notes/  figures/  code/
+    ├── paper/  manuscript/  .build/
+```
+
+Two things follow, and they are what keep this simple:
+
+- **Inside the workspace root, the layout is the same in every case** (§4.2). No skill needs to know whether it is one directory down or at the top; it reads the workspace root from `CLAUDE.md` and works relative to it.
+- **The workspace root may be `.`**, and is, whenever the working directory *is* the paper — nothing else in it, or a directory made for this paper alone. Forcing a wrapper subdirectory on a directory that holds only a paper is pure ceremony. `/paper-start` proposes the layout and the author decides; the default is a named subdirectory when the working directory already looks like a project (a `.git`, a `src/`, an unrelated `CLAUDE.md`, material with nothing to do with this paper) and `.` otherwise.
+
+**The two files at the working-directory root are the whole of the system's footprint outside the workspace**, and both are additive: an appended, delimited block in `CLAUDE.md` and the missing lines in `.gitignore`. Nothing else outside the workspace root is created, moved or modified — the author's project keeps its own shape.
+
+**`CLAUDE.md` is the load-bearing one.** It is what a new session reads automatically, so it is what names the workspace root and points at `paper/STATE.md`. A workspace that gets a `paper/` and a `manuscript/` but no `CLAUDE.md` block looks scaffolded and is not: nothing tells the next session where the memory is, and §5 quietly fails to engage.
+
+### 4.2 Inside the workspace root
+
+```
+<workspace root>/
 ├── notes/                 # AUTHOR-OWNED. free-form markdown. agent writes only on request
 ├── figures/               # AUTHOR-OWNED
 ├── code/                  # AUTHOR-OWNED, optional. methods can be written from it
@@ -69,6 +102,12 @@ The system is installed once. Each paper gets a workspace scaffolded into its ow
 
 Everything except `.build/` is committed. The diffs of `paper/` are the record of how the paper was thought through.
 
+**`paper/`, `manuscript/` and `.build/` always live in the workspace root.** They are agent-owned or shared, they are created by `/paper-start`, and their location is not negotiable — that is what makes the workspace a workspace.
+
+**The author's three directories are found, not placed.** `notes/`, `figures/` and `code/` belong to the author, so they are used wherever they already are and under whatever they are already called: `analysis/` and `plots/` in the working directory above, a `notes/` at the project root, or nothing yet at all. They are created inside the workspace root only when the material exists nowhere. Whatever the answer, the resolved paths are written into the `CLAUDE.md` block, and `% src:` anchors (§6.3) are written relative to the workspace root — so `% src: ../analysis/plot_lf.py:88 (fit_break)` is a legitimate anchor when that is where the code actually is.
+
+Nothing the author owns is ever moved to make the layout tidier. A directory map that describes a layout the author does not have is worse than no map, and a scaffold that relocates a week of someone's work to fit a diagram is the fastest way to lose them.
+
 ---
 
 ## 5. Memory
@@ -79,7 +118,7 @@ The single most important design decision, because it is what makes a new conver
 
 | File | Loaded | Lifespan | Contains |
 |---|---|---|---|
-| `CLAUDE.md` | automatically, every session | stable — changes rarely | **how to behave**: house rules, directory map, venue, build command, the pointer to `STATE.md` |
+| `CLAUDE.md` | automatically, every session | stable — changes rarely | **how to behave, and where things are**: the workspace root (§4.1), the astro-paper install path, directory map, venue, build command, the pointer to `STATE.md` |
 | `paper/STATE.md` | first action of every session | **only true today** | **where we are**: section status, what's settled, what's open, next action, and what is currently in flux about the argument |
 | `paper/journal.md` | on demand | permanent archive | **how we got here**: dated entries, what was discussed, what was decided and why |
 
@@ -167,7 +206,7 @@ One LaTeX macro, five kinds:
 \gap{todo}{expand once the z=2 run finishes}
 ```
 
-`manuscript/astropaper.sty` is roughly 25 lines. Mode is a package option — `\usepackage{astropaper}` is draft, `\usepackage[final]{astropaper}` is final — so switching it is a one-word edit in `main.tex` and is visible in the diff. In `draft` mode (the default) markers render loudly inline and in the margin. In `final` mode **each `\gap` invocation** raises `\PackageError` and the build fails. The error fires on invocation, never at package load — a gap-free manuscript must build cleanly in `final` mode, or the mechanism is worthless.
+`manuscript/astropaper.sty` is small — 124 lines as built, most of it the AAS journal-abbreviation block that verbatim ADS BibTeX turned out to require (§14). Mode is a package option — `\usepackage{astropaper}` is draft, `\usepackage[final]{astropaper}` is final — so switching it is a one-word edit in `main.tex` and is visible in the diff. In `draft` mode (the default) markers render loudly inline and in the margin. In `final` mode **each `\gap` invocation** raises `\PackageError` and the build fails. The error fires on invocation, never at package load — a gap-free manuscript must build cleanly in `final` mode, or the mechanism is worthless.
 
 Collecting the gaps is `grep -n '\\gap{' manuscript/main.tex manuscript/sections/*.tex`. Restricted to `.tex`, because `astropaper.sty` contains the macro's own definition. It does not need a tool.
 
@@ -249,7 +288,9 @@ Six skills. Each one reads `STATE.md` first and writes `STATE.md` + a `journal.m
 
 Reads `notes/`, **looks at** every figure (converting EPS/PS with `pdftoppm` or `gs` first), reads any tables, reads `code/` if present.
 
-Fetches the target journal's current template and class file into `manuscript/`, and scaffolds `CLAUDE.md`, `paper/`, `main.tex` and `astropaper.sty`.
+Fetches the target journal's current template and class file into `manuscript/`, and scaffolds the workspace: it proposes the workspace root (§4.1), creates `paper/` and `manuscript/` inside it, and wires the working directory by writing or **appending to** the root `CLAUDE.md` and `.gitignore`.
+
+**The append path is the normal one, not the edge case.** An existing project already has both files, and a scaffold that merely declines to overwrite them leaves the workspace unwired: no first-action pointer, no recorded install path, and `.build/` tracked in git. The `CLAUDE.md` block is delimited by `<!-- astro-paper: begin -->` / `<!-- astro-paper: end -->` markers so it can be rewritten in place on a later run without ever touching the author's own text; `.gitignore` gets only the lines it is missing.
 
 **The venue does not have to be decided yet.** Early on it usually is not. Absent a choice the scaffold uses a plain `article` class, and switching later is a `main.tex` preamble change plus a re-fetch — the prose does not care. Refusing to start until the author picks a journal would be exactly the wrong kind of gate.
 
@@ -270,7 +311,7 @@ Three drafting sources, which behave differently:
 - **From code** — for Methods, when analysis code is available. Reads the source and writes what the code *does*; it never runs it (§3, §6.2). Where the code and the notes describe the method differently, that becomes a `\gap{q}` rather than a silent choice between them. This is the one place the agent is genuinely well-placed to catch something the author would miss, and it falls out of the work rather than needing machinery.
 - **From figures** — the agent looks at the figure and describes what is actually plotted, then checks that against the caption and the notes.
 
-Section *roles*, not names: the corpus evidence shows no astronomy paper reliably uses canonical headings, and one has no Results section at all. The skill works in terms of what a section is *doing* (methods / results / discussion / framing), and `outline.md` maps those roles onto whatever headings the paper actually uses — including a combined "Results and Discussion".
+Section *roles*, not names. This is measured, not assumed: across six of the author's own published papers, section headings are not canonical — one paper has no Results section at all, and combined "Results and Discussion" headings are common. Keying the skill to heading names would therefore fail on real papers. The skill works in terms of what a section is *doing* (methods / results / discussion / framing), and `outline.md` maps those roles onto whatever headings the paper actually uses — including a combined "Results and Discussion".
 
 **Editing is non-destructive.** The author edits `manuscript/` directly and constantly — that is the point of the project. The agent therefore **edits in place and preserves author prose**. It never regenerates a section wholesale over existing text without showing what it would replace and being told to go ahead. A single silent overwrite of a day's hand-editing ends the author's trust in the system permanently, and git making it *recoverable* does not make it acceptable.
 
@@ -381,9 +422,9 @@ The bolded fields are not optional extras: without the abstract, the novelty and
 
 **Redirects are rejected**, or at minimum every cross-origin redirect is, and the target is reported without the token. `urllib` follows redirects by default and can carry an `Authorization` header to a host that was never intended to see it. This is a few lines and it is the one security-relevant behaviour in the project.
 
-Token resolution, in order, so it works on a laptop and on OzSTAR/NERSC alike: macOS Keychain → `ADS_API_TOKEN` → `ADS_DEV_KEY` → `SCIX_API_TOKEN` → `~/.ads/dev_key`. Never in a URL, never on argv, never logged. Base URL from `ASTRO_PAPER_ADS_BASE`, defaulting to `https://api.adsabs.harvard.edu/v1`; SciX is a one-variable switch, as both hosts serve the same v1 Solr surface. Every command takes an explicit row limit with a bounded default, so a broad query neither truncates silently nor pulls an unbounded result set.
+Token resolution, in order, so it works on a laptop and on OzSTAR/NERSC alike: macOS Keychain → `ADS_API_TOKEN` → `ADS_DEV_KEY` → `SCIX_API_TOKEN` → `~/.ads/dev_key`. Never in a URL, never on argv, never logged. Base URL from `ASTRO_PAPER_ADS_BASE`, defaulting to `https://api.adsabs.harvard.edu/v1`; SciX is a one-variable switch, as both hosts serve the same v1 Solr surface. Every command whose input is a *query* takes an explicit row limit with a bounded default, so a broad query neither truncates silently nor pulls an unbounded result set. `export` is exempt and deliberately so: it takes an explicit list of bibcodes, so its input already is its bound.
 
-Roughly 200 lines — an estimate, not a cap. It exists because the alternatives are worse: the API needs a bearer token in a header, it paginates, and `export` is what keeps rule 2 honest.
+396 lines as built. The estimate at design time was 200; the difference is almost entirely the token-safety work in §14, which was not foreseen and was worth every line of it. It exists because the alternatives are worse: the API needs a bearer token in a header, it paginates, and `export` is what keeps rule 2 honest.
 
 **Deliberately not an MCP server.** The official `adsabs/scix-mcp` covers this ground, but it brings node, `npx` and MCP client configuration for what is a few hundred lines of stdlib Python, and it puts the verbatim-BibTeX guarantee in someone else's repository. A script the skills invoke is simpler to install, simpler to test, and version-pinned by being in this repo.
 
@@ -393,22 +434,31 @@ The consequence, which should be stated plainly: **the entire value of this proj
 
 ### 9.2 Skills, and the DRY rule that binds them
 
+`built` marks what exists today; the rest is the remaining phases (§11).
+
 ```
-tools/ads.py             # the only script
+tools/ads.py             # the only script                              built
+skeleton/                # copied into a paper repo by /paper-start     built
 skills/
 ├── _shared/
 │   ├── memory.md        # read STATE.md first; write STATE.md + journal.md last
 │   ├── house-rules.md   # the two integrity rules, source comments, gap markers,
-│   │                    #   non-destructive editing
+│   │                    #   non-destructive editing, locating the installation
 │   ├── sections/*.md    # rhetorical moves per section role — data, not skills
-│   └── venues/*.md      # per-venue conformance checklists, as greps
-├── paper-start/SKILL.md
-├── paper-draft/SKILL.md
-├── paper-iterate/SKILL.md
-├── paper-lit/SKILL.md
-├── paper-frame/SKILL.md
-└── paper-finish/SKILL.md
+│   │                    #   methods, results, discussion built; framing is P5
+│   └── venues/*.md      # per-venue conformance checklists, as greps    P5
+├── paper-start/SKILL.md                                              # built
+├── paper-draft/SKILL.md                                              # built
+├── paper-lit/SKILL.md                                                # built
+├── paper-iterate/SKILL.md                                            # P4
+├── paper-frame/SKILL.md                                              # P5
+└── paper-finish/SKILL.md                                             # P5
 ```
+
+**`_shared/sections/` holds only roles that exist.** A role file that is named by
+`outline.md` but absent sends the drafting skill looking for a file that is not
+there — `framing` was written into an outline before `/paper-frame` existed and
+did exactly that. Do not name a role before its file is written.
 
 The memory protocol and the house rules are written **once** in `_shared/` and referenced by every skill. Restating them six times is how they drift.
 
@@ -438,7 +488,7 @@ No third-party Python packages, no virtualenv, no node, no MCP client. Nothing t
 
 **The author's own voice** is an **opt-in** style reference, not a default. It is often wrong for a multi-author paper, and a style-matching pass that always runs is an irritation.
 
-The author's 2004–2016 corpus is **retired** as a foundation. It was load-bearing for the superseded plan because that plan parsed existing manuscripts; here the system writes the manuscript and controls the constructs. Two or three trimmed `.tex` excerpts are kept for the minor path where the author points the agent at an old paper for context.
+The author's 2004–2016 corpus is **retired** as a foundation. It was load-bearing for the superseded plan because that plan parsed existing manuscripts; here the system writes the manuscript and controls the constructs. Nothing from it ships in this repo: where the author wants an old paper as context they point the agent at it on disk, which is the ordinary opt-in style-reference path above.
 
 ---
 
@@ -446,16 +496,47 @@ The author's 2004–2016 corpus is **retired** as a foundation. It was load-bear
 
 Each phase leaves the system usable. Nothing is built ahead of a demonstrated need.
 
-| Phase | Deliverable | Done when |
-|---|---|---|
-| **P1** | Workspace skeleton, `CLAUDE.md` template, `astropaper.sty`, `_shared/memory.md` + `house-rules.md` | scaffolding a repo by hand produces a draft-mode build that fails in `final` mode with one gap present |
-| **P2** | `/paper-start` + `/paper-draft` | **the minimum useful system.** A real `notes/` + `figures/` directory produces a compiling, honestly-incomplete body draft |
-| **P3** | `tools/ads.py` + `/paper-lit` + `paper/lit/` convention | all four modes run; BibTeX arrives verbatim from `export`; a novelty check returns a real prior-work answer, including an unwelcome one |
-| **P4** | `/paper-iterate` | a session produces substantive structural criticism, not copy-editing, and lands in `journal.md`. **Prototype this one against a real draft before writing the final skill file** — it carries the most value and the most risk, and it is the only skill whose quality cannot be judged by reading it |
-| **P5** | `/paper-frame` + `/paper-finish` | Intro and Conclusions written from a completed body; `final` build succeeds with zero gaps |
-| **P6** | Dogfood on a real paper end to end | the author would use it again |
+| Phase | Deliverable | Done when | Status |
+|---|---|---|---|
+| **P1** | Workspace skeleton, `CLAUDE.md` template, `astropaper.sty`, `_shared/memory.md` + `house-rules.md` | scaffolding a repo by hand produces a draft-mode build that fails in `final` mode with one gap present | **done**, verified 2026-08-21 (§14.1) |
+| **P2** | `/paper-start` + `/paper-draft` | **the minimum useful system.** A real `notes/` + `figures/` directory produces a compiling, honestly-incomplete body draft | **done**, verified 2026-08-21 (§14.2) |
+| **P3** | `tools/ads.py` + `/paper-lit` + `paper/lit/` convention | all four modes run; BibTeX arrives verbatim from `export`; a novelty check returns a real prior-work answer, including an unwelcome one | **done**, verified 2026-08-22 (§14.3) |
+| **P4** | `/paper-iterate` | a session produces substantive structural criticism, not copy-editing, and lands in `journal.md`. **Prototype this one against a real draft before writing the final skill file** — it carries the most value and the most risk, and it is the only skill whose quality cannot be judged by reading it | **next** |
+| **P5** | `/paper-frame` + `/paper-finish` | Intro and Conclusions written from a completed body; `final` build succeeds with zero gaps | not started |
+| **P6** | Dogfood on a real paper end to end | the author would use it again | not started |
 
 **After P2 the system already earns its place.** P3–P5 deepen it. If P4 or P5 turn out not to be worth the skill file, they should not be written.
+
+### 11.1 How the remaining work batches
+
+Which phases can share a session, and which must not. This is about what can be
+*demonstrated* together, not about size.
+
+**P4 — alone, and it is really two sittings.** The prototype-before-writing
+instruction above is a requirement, not a suggestion, because `/paper-iterate`
+is the only skill whose quality cannot be judged by reading it. So: one sitting
+that runs the §7.3 moves by hand against an actual draft and keeps only what
+produced substantive structural criticism, then a second that writes the skill
+file from what survived. Nothing else shares either sitting — the failure mode
+is degenerating into copy-editing, and that is invisible if the session is also
+busy with something else. It also wants a draft thicker than the two-section
+acceptance fixture, so it is better run against a real paper. This is the one
+skill that uses subagent isolation (the claims-blind read, §7.3).
+
+**P5 — one session, both skills.** `/paper-frame` and `/paper-finish` share a
+single acceptance criterion: Introduction and Conclusions written from a
+completed body, then a `final` build that succeeds with zero gaps. The second is
+not demonstrable without the first, so splitting them buys nothing. Note that
+`/paper-finish` needs `_shared/venues/<venue>.md`, which needs a venue actually
+chosen — if none is, write the skill against one real venue rather than
+inventing a generic checklist.
+
+**P6 — alone, and it is not a coding session.** Dogfooding a real paper end to
+end runs over weeks of ordinary use, and its output is a list of fixes to
+everything built before it. Nothing is scheduled alongside it.
+
+**Nothing else combines.** The phases are already the smallest units that leave
+the system usable.
 
 ---
 
@@ -486,3 +567,341 @@ Named so that scope creep is visible when it is proposed:
 6. **Figure-derived values leak into the paper as if measured.** Mitigation: the visual-estimate rule in §6.2, which covers the author's own figures as well as published ones.
 7. **`tools/ads.py` is the one piece of code that can break.** It is small, stdlib-only, and depends on a stable public API, so the exposure is low — and unlike a silent wrong answer, an API failure is loud and immediate. A redundant second client is not insurance worth its weight: the real fallback is `curl` against the same documented endpoint for a session, or the ADS website. Both `api.adsabs.harvard.edu` and `api.scixplorer.org` serve the same v1 surface, so a host outage is one environment variable.
 8. **Writing before the results are settled means text that has to change.** This is accepted and is the point of the project. `\gap{number}` and the `% src:` comments are what make the eventual sweep tractable.
+
+---
+
+## 14. Validation record
+
+What has actually been built, and what was verified rather than asserted. Every
+claim here was produced by running something, not by reading it.
+
+The acceptance fixture is `.dogfood/quenching/` — local only, untracked, and
+**kept deliberately**. It is a purpose-built messy paper directory: three
+free-form notes, five figures (one EPS-only, one orphaned, one misleading `_old`
+sibling that is a *different* plot), two analysis scripts carrying twelve
+planted inconsistencies, and now P3's literature output on top. It is the
+cheapest regression test for any later change to `/paper-start`, `/paper-draft`
+or `/paper-lit`; `.figsrc/PLANTED.md` lists what each defect was planted to
+catch.
+
+### 14.1 P1 — the gap mechanism
+
+Three properties, each re-verified after every subsequent change to the package:
+
+- draft mode builds — exit 0;
+- `[final]` mode with gaps present fails — exit 12, one `Package astropaper
+  Error` per `\gap` invocation;
+- `[final]` mode with **zero** gaps builds cleanly — exit 0. This is the
+  property that makes the mechanism worth anything, and it is the one an
+  error-at-package-load implementation would break.
+
+Verified with gaps in section text, `\title`, a heading, math mode, a
+`\caption`, a float, a `minipage`, a footnote, a `tabular`, the table of
+contents and the list of figures.
+
+**Two build-breaking defects in the package were found by using it, not by
+reading it.**
+
+1. `\gap` originally used `\marginpar`, which goes through LaTeX's float
+   mechanism: inside a `minipage` or a footnote it raises "Not in outer par
+   mode" or loses the float, and the build fails. Both are ordinary places for
+   a gap in an astronomy manuscript. It now uses `marginnote`, which places the
+   note directly. `\gap` is also declared with `\DeclareRobustCommand`, so a gap
+   in a caption or a heading survives into the `.aux` as itself.
+2. Verbatim ADS BibTeX writes journal names as AAS macros (`\apj`, `\mnras`),
+   which a plain `article` class does not define — so the *first* exported
+   reference broke the build with `Undefined control sequence`. That made rule 2
+   (§6.2) unusable for exactly as long as the venue is undecided, which is
+   deliberately most of a project's life. `astropaper.sty` now provides the
+   abbreviations via `\providecommand` inside `\AtBeginDocument`, so a real
+   journal class always wins.
+
+### 14.2 P2 — the minimum useful system
+
+`/paper-start` then `/paper-draft` run against the fixture produced a workspace,
+an outline, seventeen open questions, and two body sections that **build clean
+from cold — exit 0, zero LaTeX warnings** — carrying 19 `\gap` markers and 29
+`% src:` traces. **All twelve planted defects were surfaced as questions or gaps
+rather than smoothed over**, and four further problems emerged that were never
+planted, the sharpest being that the paper's stated point rests on nothing in
+the material.
+
+**Four defects in the skill files were found by running them:** `pdftoppm`
+needed `-singlefile` (it was writing `fig3-1.png`, so the read failed); `gs`
+needed `-dEPSCrop` (it rendered a near-blank US-Letter page instead of the
+figure); the scaffold copy needed `cp -Rn`, because a plain `cp -R` silently
+clobbers an author-edited `CLAUDE.md`; and the documented `latexmk` line needed
+`-interaction=nonstopmode` — **without it the build hangs at LaTeX's `?`
+prompt**, which in `final` mode is the normal path rather than an unlucky one.
+
+**The single most instructive finding of the whole build** came from external
+review of this phase: the acceptance draft contained a **reversed scientific
+claim carrying a valid-looking `% src:` trace** — it said the model fell *below*
+the observed stellar mass function at the massive end where the plotted data
+have it *above* by ~0.2 dex. Verifying that surfaced something the reviewer had
+not: every code line anchor in the draft was off by two, and one named the wrong
+function, because they were written from memory of the file rather than from the
+file. This is precisely the failure the project exists to prevent, and it
+reached a draft *with a trace attached*.
+
+The systemic fix is **step 5 of `/paper-draft`, "read every trace back before
+you build"**: re-open every cited source, check the direction of every
+comparison, check the named symbol owns the line, sweep for untraced captions.
+It is the most important single addition to any skill file, and it is why §6.3's
+traces are only worth something when something re-reads them.
+
+**Two caveats, stated because they matter.**
+
+The fixture was written by the same session that then drafted against it. It
+tests the procedure and the toolchain honestly, but it is a weak test of whether
+the skill prose guides a *cold* reader. That is what P6 is for.
+
+And the fixture is a **root-layout** workspace: the working directory *is* the
+paper. The workspace-root design of §4.1 — a named subdirectory inside an
+existing project, with `CLAUDE.md` and `.gitignore` appended rather than created
+— was specified after P2 was validated and **has not been dogfooded**. The
+root-layout path it replaces is unchanged and still covered by the fixture, but
+the subdirectory path, the append-to-existing-`CLAUDE.md` block and the
+`../analysis/`-style author paths are so far only specified. First real use of
+`/paper-start` in a project directory is the test, and it should be treated as
+one.
+
+### 14.3 P3 — the literature arm
+
+**The acceptance criterion, met and re-run at the end:** all four modes ran
+against the live API; eight `refs.bib` entries **byte-identical** to a fresh
+single-call `export`; the novelty check returned bad news on *both* halves of
+the fixture paper's claim.
+
+**The novelty result is the part worth reading, because it is the mode working
+as designed.** The fixture paper claims satellites quench above a host halo mass
+of $10^{12.5}$ and that the transition barely moves to $z=1$. The literature was
+not kind to either half. Peng+12 tests halo mass against local over-density *by
+name* and finds over-density wins — so the x-axis of the paper's main figure may
+be the wrong variable, and the *orphaned* figure, which plots exactly that, may
+be the real main figure. Wetzel+12 measures no minimum halo mass at all, so
+"transition" may be the wrong word. Wetzel+13 attributes the halo-mass trend to
+group preprocessing. And on redshift the honest answer turned out sharper than
+the first one: nothing measures the evolution of the *halo-mass* crossing point,
+so the claim is **untested rather than contested** — a better position for the
+paper and a worse one for its evidence.
+
+**Token safety — four real defects, each found by a separate review round and
+each verified by reproduction before being fixed.** This is the project's one
+security-relevant behaviour and it is the reason the review rounds paid for
+themselves:
+
+1. The token reached stderr whenever the far end echoed the `Authorization`
+   header — in an error body, a reason phrase, or a redirect `Location`.
+   Reproduced against a local server; fixed by scrubbing every server-controlled
+   string.
+2. The body was **truncated to 400 bytes before scrubbing**, so a token
+   straddling the boundary left a cleartext prefix. Scrub now runs first.
+3. `build_opener` keeps urllib's environment proxy handler, so `http_proxy` plus
+   a plain-HTTP base would hand the header to an unconfigured proxy. The
+   proposed fix — disable proxies — was **rejected** (§15); instead the base
+   must now be `https`, loopback excepted, which closes cleartext transmission
+   generally rather than one instance of it.
+4. The loopback exception was still proxy-bypassable. Fixed by disabling proxies
+   *only* for loopback, which is correct behaviour regardless of the token.
+
+The invariant that came out of it: **the token travels either over TLS to a
+remote host, or unproxied to loopback, and nowhere else.** The TLS guard admits
+`https` and loopback and refuses fourteen probed bypass forms, including the
+userinfo spoof.
+
+**Also fixed in `ads.py`:** a `TypeError` in `resolve`'s sort key when a record
+has no `year`; a silently-empty result when a DOI or arXiv id is pasted as a URL
+or carries a `.pdf` or `vN` suffix; a traceback rather than a message on a
+stalled read or a non-JSON body; an empty-but-set `ASTRO_PAPER_ADS_BASE`
+building a host-less URL; and `export`'s missing-bibcode check using a substring
+match, so one bibcode being a prefix of another hid a dropped reference.
+
+**In the skill prose**, three changes matter more than the rest. The PDF fetch
+ladder claimed `curl -f` prevents saving a paywall page; it does not, since a
+cookie wall answers 200 with HTML — the ladder now restricts itself to PDF
+source types and checks for `%PDF`. Support/contradict gained a
+**comparability check** — same dependent quantity, same independent variable,
+comparable sample and epoch, with **adjacent** as the honest verdict when they
+do not line up; this came from catching two papers being called *contradictions*
+when they measure an efficiency against local density, and it is the single most
+valuable change of the phase. And a hard-coded `year:2023-2026` would have gone
+stale inside a project measured in months.
+
+**Three defects were found by re-reading rather than by review**, which is worth
+knowing about the limits of a review panel: a literature note read a figure
+across two *different* stellar-mass curves; two scratch `.tex` files left in the
+fixture by a build test were never deleted because `rm -f` is refused in this
+sandbox and the exit code went unchecked, inflating the reported gap count; and
+a documented `grep -q '<bibcode>'` left the bibcode's dots as regex wildcards.
+
+**Final P3 state, all re-verified after the last fix:** five `ads.py` commands
+run live; `refs.bib` byte-identical to a fresh export; the fixture builds from
+cold at exit 0 with **zero LaTeX warnings, zero undefined citations, 21 `\gap`
+markers, 30 `% src:` traces, 22 open questions**; `[final]` fails as designed
+and a gap-free `[final]` with real citations exits 0; every `_shared/` reference
+resolves.
+
+### 14.4 How the review was run, and what it was worth
+
+P1–P3 were reviewed by an external two-harness panel: **codex CLI / gpt-5.6-sol**
+and **opencode CLI / opencode-go/hy3**, both read-only, both high effort,
+staggered starts, each round a cold session re-deriving its own findings rather
+than grading the previous round. Every finding was independently verified before
+being accepted. P2 took three rounds; P3 took seven. The final round of each:
+both harnesses `RESULT: pass`, no blocking findings.
+
+Two honest observations about the method, since it is expensive:
+
+- **The value was concentrated.** For P3 it was almost entirely the four token
+  defects. For P2 it was the reversed claim and a build-and-report block that
+  grepped the wrong directory (`cd manuscript && latexmk` followed by `grep -rn
+  ... manuscript`, which searches `manuscript/manuscript`, finds nothing, and
+  would report a clean draft with every gap still in it). Everything else was
+  narrower instances of findings already closed.
+- **Where the two harnesses disagreed, they were at the noise floor.** Their
+  disagreements were about threat model and about how much role-specific
+  restatement counts as DRY duplication — not about fact. Two competent
+  reviewers landing on opposite verdicts is the signal to stop, not to run
+  another round.
+
+A developer's own fresh-eyes pass after the panel still found four things the
+panel had not, all of them in the prose rather than the code: an outline role
+pointing at a `_shared/sections/` file that does not exist, an ambiguous
+back-reference that read as the skill's own §3 rather than the paper's, a stale
+count of drafting sources, and two passages mangled into run-on prose by
+successive edits. For a product whose entire value is the clarity of its prose,
+that last one is a real defect and not a cosmetic one.
+
+---
+
+## 15. Settled decisions
+
+Recorded so they are not re-opened without new evidence. Each of these was
+argued at least once and in several cases repeatedly.
+
+**The design**
+
+- **The author is the sole verifier.** The system never certifies a number,
+  method or citation. It makes work visible and traceable, nothing more.
+- **Zero verification machinery.** No approval registries, claims or results
+  databases, state validators, provenance graphs, numeric checkers, unit or
+  $h$-scaling algebra, terminology checks, or style policing. The superseded
+  design was built around these; §12 is the list and §1 the reason.
+- **Both integrity rules are hard instructions, not gates** (§6.2). Do not
+  describe them as structurally guaranteed. Nothing prevents an agent with write
+  access from composing a BibTeX entry or writing an untraced number.
+- **One shared traceability rule, and notes are not its only legitimate source**
+  (§6.2). An earlier draft made notes the only source, and it was the single
+  worst defect found in review: it would have marked the author's own
+  figure-derived results as unknown.
+- **Slash commands are shortcuts, not an interface** (§7). Plain conversation
+  must work identically; `CLAUDE.md` points every session at `paper/STATE.md`.
+- **KISS and DRY are binding, not preferences.** Rules live in exactly one place
+  (`skills/_shared/`), referenced by the skills, never restated. Every canonical
+  phrase must grep-resolve to exactly one file.
+- **No MCP servers.** ADS access is `tools/ads.py`, stdlib only (§9.1). This was
+  an explicit author instruction, not an inference from §9.1's reasoning.
+
+**The token, whose threat model was settled over four rounds**
+
+- The invariant is in §14.3. **Deliberately out of scope: a configured host
+  echoing the token back** in a *successful* body — base64- or
+  percent-encoded, or split across the reason phrase and the body. That host
+  already holds the cleartext and the echo reaches only the operator's own
+  terminal, so the defence buys nothing — and the content filter it would need
+  must sit in front of the verbatim-BibTeX guarantee that rule 2 depends on.
+  `_scrub`'s docstring states this limit rather than overclaiming it. One
+  harness re-raised this every round; it was rejected every round, and the other
+  harness agreed each time.
+- **Proxies stay enabled for remote hosts.** Disabling them was proposed and
+  rejected: on OzSTAR or NERSC a proxy is how you reach the internet at all, and
+  over HTTPS it sees only a `CONNECT` tunnel. They are disabled for loopback
+  only, where urllib would otherwise route `127.0.0.1` through `http_proxy`.
+
+**Approaches already declined**
+
+- **An `implementation-plan` / `scoped-implementation` / `drift-audit` workflow
+  for this build.** Greenfield, no regression surface, and §11 already provides
+  phased acceptance criteria. The deliverable is mostly prose, which frozen
+  slices cannot audit.
+- **A second, redundant ADS client** as insurance against `ads.py` breaking.
+  Complexity before need; the real fallback is `curl` against the same
+  documented endpoint (§13, risk 7).
+- **One skill per manuscript section.** The drafting procedure is identical;
+  only the rhetorical moves differ, and those are data in `_shared/sections/`
+  (§9.2).
+- **Building the author's paper corpus into the system as a foundation** (§10).
+- **Scanning *successful* ADS responses for the token** before parsing or
+  printing them. See the threat model above.
+- **Citekey rekeying to `LastName_Year`.** Rule 2 says nothing is adjusted, so
+  the citekey stays whatever bibcode ADS exports.
+
+---
+
+## 16. Installation
+
+The system is installed **once, globally**, and each paper gets a workspace
+scaffolded by `/paper-start` (§4) wherever the author is working. Nothing about a
+paper lives in this repo, and the only thing about the system that lives in a
+paper's directory is the recorded install path (§4.1).
+
+### 16.1 Where it lives
+
+This repo is composed into the shared agent home (`~/.agents`, see that repo's
+`README.md`) as a manifest-managed clone under `repos/astro-paper`. Setup links
+every directory in `skills/` that contains a `SKILL.md` into the single public
+catalogue `~/.agents/skills/`, which each harness points at in turn. So
+`/paper-start`, `/paper-draft` and `/paper-lit` are available from **any**
+working directory, without that directory knowing anything about this repo.
+
+`skills/_shared/` has no `SKILL.md` and is therefore *not* linked as a skill,
+which is correct: it is data the skills read, not a skill. It stays reachable
+because path resolution follows the symlink — `<skill>/../_shared/` resolves
+into this repo's real `skills/` directory.
+
+### 16.2 Locating the installation from inside a skill
+
+`skeleton/` and `tools/ads.py` sit one level *above* `skills/`, so a skill
+reaching them cannot use a path relative to the catalogue. The resolution rule
+is canonical in `_shared/house-rules.md` and is stated once there:
+
+> the installation root is two levels above the directory holding the running
+> `SKILL.md`, resolved **physically** through the symlink — and it is confirmed
+> by the presence of `tools/ads.py`.
+
+**"Physically" is the whole of it.** A shell's `cd` resolves `..` against the
+path as typed rather than against where the symlink points, so the obvious
+`cd <skill dir>/../..` lands two levels above the *catalogue* and not above the
+real `skills/`. It was written that way first and it returns a directory that
+exists and holds no `tools/`, which is why the `ads.py` check is a confirmation
+rather than a formality: the failure mode is a plausible wrong answer, not an
+error. `cd -P` is required.
+
+This matters at exactly one moment and it is easy to miss: **the first
+`/paper-start` in a brand-new working directory.** Every later session finds the
+absolute path recorded in the `CLAUDE.md` block, which the scaffold writes. The
+first one has no block to read, so it must resolve the root itself or it cannot
+copy the skeleton at all.
+
+### 16.3 The ADS token
+
+Resolution order is in §9.1. On this machine the token is in the macOS Keychain
+under service `nasa-ads-api-token`, which is first in that order, so nothing
+needs to be set per shell:
+
+```sh
+security add-generic-password -a "$USER" -s nasa-ads-api-token -w <token> -U
+```
+
+**The current token was pasted into a chat transcript when it was supplied.**
+Rotate it at `scixplorer.org` whenever convenient; re-storing it is the one
+command above and nothing else changes.
+
+### 16.4 Working on the system while using it
+
+The catalogue clone under `repos/astro-paper` is managed by setup, which pulls
+it. Development happens in the primary clone, not in the managed one: **edit,
+commit, push, then re-run `setup.sh`** to bring the global installation forward.
+Editing the managed clone directly means the next `setup.sh` pull either
+conflicts or quietly reverts the work.

@@ -16,22 +16,24 @@ question list is a good outcome.**
 
 ## Before anything
 
-First, look whether there is anything to resume:
+First, look whether there is anything to resume. The workspace may be this
+directory or a subdirectory of it, so look both places:
 
 ```sh
-ls paper/STATE.md 2>/dev/null
+ls paper/STATE.md */paper/STATE.md 2>/dev/null
+grep -l 'astro-paper: begin' CLAUDE.md 2>/dev/null
 ```
 
-**If it exists, this is not a new paper.** Read `paper/STATE.md` in full before
-anything else, exactly as every other session does, then the shared files below,
-then ask what the author wants re-ingested before touching a thing.
+**If either finds something, this is not a new paper.** The workspace root is the
+directory holding `paper/`, and `CLAUDE.md` names it. Read `paper/STATE.md` in
+full before anything else, exactly as every other session does, then the shared
+files below, then ask what the author wants re-ingested before touching a thing.
 
 **If it does not, this is the one session in the project with no state to read**
 — and the only one where the shared files come first.
 
 Either way, read from the astro-paper installation (the directory holding this
-skill — `../_shared/`; the paper repo's `CLAUDE.md` names the install path if
-that does not resolve):
+skill — `../_shared/`):
 
 - `_shared/memory.md`
 - `_shared/house-rules.md`
@@ -56,6 +58,32 @@ top level or in a directory named something else entirely, which is common.
 astronomy routinely holds millions of files, and `ls -R` on it would flood the
 session before a single note has been read. If a specific data file or table
 matters, the author will point at it.
+
+### 1a. Settle the workspace root before anything writes a path
+
+Do this now, not at §5. Everything after this point — the figure conversions in
+§3, `.build/`, every path in every later session — is relative to the workspace
+root, and a `.build/` created before the root is known is litter left in someone
+else's project directory.
+
+`_shared/house-rules.md` has the rule. Propose from what the survey just showed
+and get a yes:
+
+- **A named subdirectory, `paper-<short name>`** — the default when the working
+  directory is already a project: it has its own `.git`, or a `src/`, or a
+  `CLAUDE.md` about something else, or material with nothing to do with this
+  paper. The paper then sits inside the project without taking it over.
+- **`.`** — when the working directory *is* the paper: empty, or holding only
+  this paper's material, or made for it.
+
+Say which you propose and why in one sentence, ask for the short name if a
+subdirectory, then create it. It is written `<ws>` from here on.
+
+```sh
+mkdir -p "<ws>"
+```
+
+Nothing the author owns moves into it, then or later.
 
 Report what is there before reading it — how many notes, how many figures, is
 there code, are there tables. The author often does not know either.
@@ -133,36 +161,157 @@ that is so, say the binding is unresolved rather than guessing.
 
 ## 5. Scaffold
 
-Copy the skeleton from the astro-paper installation (`skeleton/`) into the paper
-repo — `CLAUDE.md`, `.gitignore`, `paper/`, `manuscript/`:
+**This is the step that makes the working directory work.** Everything the
+skills need afterwards — the workspace root, the memory protocol, the install
+path, the build command — is wired in here or is not wired in at all.
+
+The workspace root (`<ws>`) was settled in §1a. Resolve **the installation
+root** now, per *Locating the installation* in `_shared/house-rules.md`; it is
+written `<astro-paper>` below and is never guessed.
+
+### 5a. Copy the skeleton into the workspace root
 
 ```sh
-for f in CLAUDE.md .gitignore manuscript/main.tex manuscript/astropaper.sty; do
-  [ -e "$f" ] && printf 'pre-existing, leave alone: %s\n' "$f"
+mkdir -p "<ws>"
+for f in "<ws>/manuscript/main.tex" "<ws>/manuscript/astropaper.sty"; do
+  [ -e "$f" ] && printf 'pre-existing: %s\n' "$f"
 done
-cp -Rn "<astro-paper>/skeleton/." .
-mkdir -p notes figures code manuscript/sections
+cp -Rn "<astro-paper>/skeleton/paper" "<astro-paper>/skeleton/manuscript" "<ws>/"
+mkdir -p "<ws>/manuscript/sections"
 ```
 
 Every part of that earns its place:
 
-- **The first loop** names what is already there. `cp -Rn` preserves existing
-  files but does not report what it skipped, and the placeholder step below needs
-  to know the difference.
+- **`paper/` and `manuscript/` only.** The skeleton's `CLAUDE.md` and
+  `.gitignore` belong at the *working-directory* root, not in the workspace, and
+  §5b and §5c place them. Copying `skeleton/.` wholesale puts a `CLAUDE.md`
+  where nothing loads it automatically.
+- **The loop** names what is already there. `cp -Rn` preserves existing files
+  but does not report what it skipped, and §5d needs to know the difference.
 - **`-n`** is what makes "never overwrite" true rather than merely intended. A
-  plain `cp -R` silently replaces a `CLAUDE.md` or a `main.tex` the author has
-  spent a week editing.
-- **The quotes** matter because an installation path may contain a space.
+  plain `cp -R` silently replaces a `main.tex` the author has spent a week
+  editing.
+- **The quotes** matter because either path may contain a space.
 - **`manuscript/sections/`** must be created explicitly. Git does not track
   empty directories, so it cannot ship in the skeleton, and `/paper-draft`
   writes its first section straight into it — without this, that write fails on
-  a brand new workspace. `mkdir -p` leaves the other three alone if they exist.
+  a brand new workspace.
 
-Then substitute the placeholders — the paper's short name, the author list, the
-install path — **only in the files the copy actually created.** A `CLAUDE.md` or
-a `main.tex` that was already there belongs to the author, has no placeholders
-left in it, and is not to be rewritten in the name of scaffolding. Say which
-files you left alone.
+**The author's three directories are found, not placed** —
+`_shared/house-rules.md` is the authority. Use `notes/`, `figures/` and `code/`
+wherever the survey found them, under whatever they are already called. Create
+them inside `<ws>` **only** for material that exists nowhere:
+
+```sh
+# only for those the survey found nothing for, anywhere
+mkdir -p "<ws>/notes" "<ws>/figures"
+```
+
+Never move or copy the author's existing material to make the layout match a
+diagram.
+
+### 5b. Wire `CLAUDE.md` at the working-directory root
+
+**This is the load-bearing file.** It is the one a new session reads
+automatically, so it is what names the workspace root and points at
+`paper/STATE.md`. Skip it and the workspace looks scaffolded but the memory
+protocol never engages.
+
+If there is **no** `CLAUDE.md`, copy the skeleton's and fill it in:
+
+```sh
+cp -n "<astro-paper>/skeleton/CLAUDE.md" ./CLAUDE.md
+```
+
+If there **is** one — the common case in an existing project — do not overwrite
+it and do not rewrite the author's content. Say what you are about to add, get a
+yes, and **append one delimited block**:
+
+```markdown
+<!-- astro-paper: begin -->
+## Paper workspace (astro-paper)
+
+**Workspace root:** `paper-quenching/` — every path below is relative to it.
+
+**First action, every session:** read `paper/STATE.md` in full, then
+`<astro-paper>/skills/_shared/memory.md` and
+`<astro-paper>/skills/_shared/house-rules.md`. Those two are the authority on
+how to behave here and are deliberately not restated.
+
+| Path | Owner | |
+|---|---|---|
+| `../analysis/` | author | read, never run |
+| `figures/` | author | looked at, never regenerated |
+| `notes/` | author | free-form markdown; modified only on an explicit "capture that" |
+| `paper/` | agent | the memory: `STATE.md`, `journal.md`, `outline.md`, `open-questions.md`, `lit/` |
+| `manuscript/` | shared | the author edits this directly and constantly |
+| `.build/` | build | gitignored |
+
+**Build**, from the workspace root:
+
+    (cd manuscript && latexmk -pdf -interaction=nonstopmode -outdir=../.build main.tex)
+
+Keep `-interaction=nonstopmode` or a LaTeX error waits at the interactive `?`
+prompt and the build hangs instead of failing.
+<!-- astro-paper: end -->
+```
+
+Four things about that block:
+
+- **`<astro-paper>` is substituted with the resolved absolute path**, and the
+  workspace root with the real directory name. This block is the record of both;
+  every later session reads them here instead of resolving them again.
+- **The directory map is the one the author actually has.** The `../analysis/`
+  row above is the example, not the template: list the paths the survey found,
+  relative to the workspace root, and leave out rows for material that does not
+  exist. A map describing a layout the author does not have is worse than none.
+- **The markers make it re-runnable.** If a block between them is already there,
+  replace that block rather than appending a second — it is agent-owned text
+  between agent-owned markers. Anything outside them is untouchable.
+- **`## `, not `# `.** It is being appended into someone else's document.
+
+If the author would rather their `CLAUDE.md` were not touched at all, the block
+goes in `<ws>/paper/CLAUDE-astro-paper.md` and they are told it must be read
+manually. Say plainly that this costs the automatic first-action pointer, which
+is the whole mechanism this step installs.
+
+### 5c. Wire `.gitignore` at the working-directory root
+
+Cheap and easy to miss. Without it `.build/` and the LaTeX litter get committed.
+Append only the lines that are missing:
+
+```sh
+touch .gitignore
+while IFS= read -r l; do
+  [ -n "$l" ] || continue
+  grep -qxF "$l" .gitignore || printf '%s\n' "$l" >> .gitignore
+done < "<astro-paper>/skeleton/.gitignore"
+```
+
+**The list is read from `skeleton/.gitignore`, never retyped here.** It is the
+one place the patterns live; a copy in this file is a copy that goes stale the
+first time the skeleton gains a line.
+
+`grep -qxF` matches the whole line literally, so `*.log` is not counted as
+present because `build.log` is listed. The patterns are unanchored, so they match
+at any depth and one `.gitignore` at the working-directory root covers a
+workspace at any level. Say what you added.
+
+### 5d. Placeholders
+
+Substitute the paper's short name, the author list, the resolved install path and
+the workspace root — **only in the files the copy actually created.** A
+`main.tex` that was already there belongs to the author, has no placeholders left
+in it, and is not to be rewritten in the name of scaffolding. Say which files you
+left alone.
+
+**`\graphicspath` in `main.tex` is the one that bites.** It ships as
+`{{../figures/}}`, which is right only when the figures are inside the workspace
+root. Where the survey found them somewhere else, set it to that path *relative
+to `manuscript/`*: figures in a `plots/` directory beside the workspace root make
+it `{{../../plots/}}`. Get this wrong and the first figure inclusion fails the
+build with a missing-file error that reads like a broken figure rather than a
+broken path.
 
 ## 6. The venue
 

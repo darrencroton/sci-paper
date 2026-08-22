@@ -6,6 +6,77 @@ and do not restate it.
 
 ---
 
+## Locating the installation
+
+Most of what a skill needs is beside it: `_shared/` is `../_shared/` relative to
+the running `SKILL.md`, and that resolves whether the skill is being read in
+this repo or through the symlinked skill catalogue of an installed agent home.
+
+**`skeleton/` and `tools/ads.py` are not.** They sit one level above `skills/`,
+so they need the installation root, which is written `<astro-paper>` wherever a
+skill refers to it. Resolve it once, at the start of the session that needs it:
+
+```sh
+# <skill dir> is the directory holding the running SKILL.md
+ASTRO_PAPER=$(cd -P "<skill dir>/../.." && pwd -P)
+[ -f "$ASTRO_PAPER/tools/ads.py" ] && printf 'astro-paper: %s\n' "$ASTRO_PAPER" \
+  || printf 'astro-paper root not found from the skill path\n'
+```
+
+**`cd -P` is not optional and plain `cd` is actively wrong here.** A skill is
+reached through a symlink, and `cd` resolves `..` against the *path you typed*
+rather than against where the symlink points — so `cd <skill dir>/../..` lands
+two levels above the catalogue instead of two above the real `skills/`. Verified:
+it returns a directory that exists and has no `tools/` in it. `-P` resolves each
+component physically; `pwd -P` then prints the real path.
+
+That is also why **the `ads.py` test is the confirmation, not a formality** — the
+failure it catches returns a plausible directory rather than an error. Do not
+proceed on an unconfirmed root, and never guess a path.
+
+**Two shortcuts before resolving anything.** A paper repo's own `CLAUDE.md`
+records the absolute install path, so in an existing workspace read it from
+there. And if `$ASTRO_PAPER` is already set in the environment, trust it after
+the same `ads.py` test.
+
+**The one moment this genuinely matters** is the first `/paper-start` in a
+brand-new paper directory: there is no `CLAUDE.md` yet, because the scaffold is
+what writes it. If the root cannot be confirmed, say so and ask for the path
+rather than copying a partial skeleton or inventing a location.
+
+---
+
+## The workspace root
+
+A paper is rarely written in an empty directory. The usual case is an existing
+science project — data, analysis code, its own git repo, often its own
+`CLAUDE.md` — with the paper as one part of it. So the paper's workspace is
+**a named subdirectory** of the working directory, and every path in this file
+and in every skill is relative to that subdirectory: the **workspace root**.
+
+**Find it before doing anything else.** It is named in the `CLAUDE.md` block that
+`/paper-start` writes, under *Workspace root*. Work from there — `cd` into it, or
+prefix paths with it, but do not half-do one and half-do the other. `paper/`,
+`manuscript/` and `.build/` are always directly inside it.
+
+**It may be `.`**, and is whenever the working directory *is* the paper. Nothing
+downstream changes: the layout inside the workspace root is identical either way,
+which is the point of naming it.
+
+**The author's directories are found, not placed.** `notes/`, `figures/` and
+`code/` are the author's, so they are used wherever they already are and under
+whatever they are already called — `analysis/`, `plots/`, or a `notes/` in the
+directory above. The `CLAUDE.md` block records the resolved paths. A `% src:`
+anchor is written relative to the workspace root and may point outside it, so
+`% src: ../analysis/plot_lf.py:88 (fit_break)` is legitimate when that is where
+the code is.
+
+**Nothing the author owns is ever moved to tidy the layout.** Not a note, not a
+figure, not a script. If the material sits somewhere awkward, say so and use it
+where it is.
+
+---
+
 ## Division of labour
 
 **The author owns** the science, the notes, the figures, the analysis code,
