@@ -24,8 +24,8 @@ Work from the workspace root, which `CLAUDE.md` names and
 `_shared/house-rules.md` defines; every path below is relative to it.
 
 Read `paper/STATE.md` in full first — the first action of every session. Then,
-from the astro-paper installation (`../_shared/` relative to this skill — its
-**Locating the installation** section is what resolves `<astro-paper>` below):
+from the sci-paper installation (`../_shared/` relative to this skill — its
+**Locating the installation** section is what resolves `<sci-paper>` below):
 
 - `_shared/memory.md` — including its **Literature notes** section, which owns
   the format of `paper/lit/index.md` and of a `<bibcode>.md` note
@@ -38,7 +38,7 @@ rejected three months ago is the cheapest waste in the project.
 ## The tool
 
 ```sh
-python3 <astro-paper>/tools/ads.py --help
+python3 <sci-paper>/tools/ads.py --help
 ```
 
 Five commands. Everything but `export` prints JSON:
@@ -116,8 +116,8 @@ paper that scooped you probably used one of the other two. So: find two or three
 papers you already know are close, then
 
 ```sh
-python3 <astro-paper>/tools/ads.py refs  '2006MNRAS.365...11C' --rows 200 --brief
-python3 <astro-paper>/tools/ads.py cites '2006MNRAS.365...11C' --rows 200 --brief --sort 'citation_count desc'
+python3 <sci-paper>/tools/ads.py refs  '2006MNRAS.365...11C' --rows 200 --brief
+python3 <sci-paper>/tools/ads.py cites '2006MNRAS.365...11C' --rows 200 --brief --sort 'citation_count desc'
 ```
 
 and read the titles. `refs` gives what the field considered prior work;
@@ -337,7 +337,7 @@ practice it means:
 
 ```sh
 grep -qF '2006MNRAS.365...11C' manuscript/refs.bib \
-  || python3 <astro-paper>/tools/ads.py export '2006MNRAS.365...11C' >> manuscript/refs.bib
+  || python3 <sci-paper>/tools/ads.py export '2006MNRAS.365...11C' >> manuscript/refs.bib
 ```
 
 - **Quote the bibcode, and grep for it with `-F`.** Bibcodes contain `&` and
@@ -349,7 +349,7 @@ grep -qF '2006MNRAS.365...11C' manuscript/refs.bib \
 - `export` exits **3** and names them if ADS returned nothing for a bibcode —
   a typo'd bibcode otherwise appends silently and surfaces much later as an
   undefined citation. Check it.
-- ADS writes journal names as AAS macros: `journal = {\mnras}`. `astropaper.sty`
+- ADS writes journal names as AAS macros: `journal = {\mnras}`. `scipaper.sty`
   provides those, so the scaffold's plain `article` class compiles an exported
   reference. If a build ever reports `Undefined control sequence \<journal>`
   from `refs.bib`, add one `\providecommand` for it beside the others there —

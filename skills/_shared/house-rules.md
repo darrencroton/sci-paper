@@ -13,14 +13,14 @@ the running `SKILL.md`, and that resolves whether the skill is being read in
 this repo or through the symlinked skill catalogue of an installed agent home.
 
 **`skeleton/` and `tools/ads.py` are not.** They sit one level above `skills/`,
-so they need the installation root, which is written `<astro-paper>` wherever a
+so they need the installation root, which is written `<sci-paper>` wherever a
 skill refers to it. Resolve it once, at the start of the session that needs it:
 
 ```sh
 # <skill dir> is the directory holding the running SKILL.md
-ASTRO_PAPER=$(cd -P "<skill dir>/../.." && pwd -P)
-[ -f "$ASTRO_PAPER/tools/ads.py" ] && printf 'astro-paper: %s\n' "$ASTRO_PAPER" \
-  || printf 'astro-paper root not found from the skill path\n'
+SCI_PAPER=$(cd -P "<skill dir>/../.." && pwd -P)
+[ -f "$SCI_PAPER/tools/ads.py" ] && printf 'sci-paper: %s\n' "$SCI_PAPER" \
+  || printf 'sci-paper root not found from the skill path\n'
 ```
 
 **`cd -P` is not optional and plain `cd` is actively wrong here.** A skill is
@@ -36,7 +36,7 @@ proceed on an unconfirmed root, and never guess a path.
 
 **Two shortcuts before resolving anything.** A paper repo's own `CLAUDE.md`
 records the absolute install path, so in an existing workspace read it from
-there. And if `$ASTRO_PAPER` is already set in the environment, trust it after
+there. And if `$SCI_PAPER` is already set in the environment, trust it after
 the same `ads.py` test.
 
 **The one moment this genuinely matters** is the first `/paper-start` in a
@@ -119,9 +119,9 @@ One macro, five kinds:
 
 Mode is a package option in `main.tex`:
 
-- `\usepackage{astropaper}` — **draft** (the default). Markers render loudly
+- `\usepackage{scipaper}` — **draft** (the default). Markers render loudly
   inline and in the margin.
-- `\usepackage[final]{astropaper}` — **final**. Every `\gap` invocation raises a
+- `\usepackage[final]{scipaper}` — **final**. Every `\gap` invocation raises a
   package error and the build fails. A gap-free manuscript builds cleanly.
 
 Switching is a one-word edit and it is visible in the diff.
@@ -133,7 +133,7 @@ at `/paper-finish`:
 grep -rn '\\gap{' manuscript --include='*.tex'
 ```
 
-Restricted to `.tex`, because `astropaper.sty` contains the macro's own
+Restricted to `.tex`, because `scipaper.sty` contains the macro's own
 definition. Recursive, so it works before `sections/` exists.
 
 **What this guarantees, and what it does not.** It guarantees a *marked* gap

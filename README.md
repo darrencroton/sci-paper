@@ -1,4 +1,4 @@
-# astro-paper
+# sci-paper
 
 **Work in progress — build under way.**
 
@@ -12,13 +12,13 @@ The astronomer is the verifier. The system never claims a number, method or cita
 
 | | |
 |---|---|
-| Design | complete — see [`docs/astro-paper - Plan.md`](docs/astro-paper%20-%20Plan.md), which is also the build record |
+| Design | complete — see [`docs/sci-paper - Plan.md`](docs/sci-paper%20-%20Plan.md), which is also the build record |
 | Implementation | **P3 done.** `/paper-start` and `/paper-draft` take a real `notes/` + `figures/` + `code/` directory to a compiling, honestly-incomplete body draft; `tools/ads.py` and `/paper-lit` add the literature arm — novelty, build-on, support/contradict and mining, with BibTeX verbatim from ADS. P4 (`/paper-iterate`) next |
 
 ## What is here
 
 ```text
-docs/astro-paper - Plan.md   # the design, the build record and the status. start here
+docs/sci-paper - Plan.md   # the design, the build record and the status. start here
 tools/ads.py                 # the only script: ADS/SciX, stdlib only
 skills/
 ├── _shared/
@@ -31,7 +31,7 @@ skills/
 skeleton/                    # copied into a paper workspace by /paper-start
 ├── CLAUDE.md
 ├── paper/                   # STATE, journal, outline, open questions, lit
-└── manuscript/              # main.tex + astropaper.sty
+└── manuscript/              # main.tex + scipaper.sty
 ```
 
 ## Shape of it

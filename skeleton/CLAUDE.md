@@ -1,6 +1,6 @@
 # <paper short name>
 
-A paper workspace. Sessions here work under the astro-paper skills.
+A paper workspace. Sessions here work under the sci-paper skills.
 
 **Workspace root:** `<workspace root>` --- every path below is relative to it.
 `.` means this directory is the workspace.
@@ -9,8 +9,8 @@ A paper workspace. Sessions here work under the astro-paper skills.
 
 1. Read `paper/STATE.md` in full. It is capped at two pages so that it can be
    read whole, every time, without deciding whether to.
-2. Read `<astro-paper>/skills/_shared/memory.md` and
-   `<astro-paper>/skills/_shared/house-rules.md`.
+2. Read `<sci-paper>/skills/_shared/memory.md` and
+   `<sci-paper>/skills/_shared/house-rules.md`.
 
 Those two files are the authority on how to behave here. They are deliberately
 not restated in this file, and nothing in this file overrides them. They apply
@@ -54,5 +54,5 @@ Keep `-interaction=nonstopmode`. Without it a LaTeX error waits at the
 interactive `?` prompt and the build hangs instead of failing.
 
 Draft mode is the default. Final mode is the `[final]` option on
-\usepackage{astropaper} in `main.tex`; it fails the build while any `\gap`
+\usepackage{scipaper} in `main.tex`; it fails the build while any `\gap`
 remains.

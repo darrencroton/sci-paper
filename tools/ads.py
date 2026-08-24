@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ADS/SciX access for the astro-paper skills. Python standard library only.
+"""ADS/SciX access for the sci-paper skills. Python standard library only.
 
 Five commands over the ADS v1 API:
 
@@ -24,7 +24,7 @@ The token travels in an Authorization header and nowhere else: never in a URL,
 never on argv, and scrubbed out of every message built from something the far
 end sent back.
 
-Base URL comes from $ASTRO_PAPER_ADS_BASE and defaults to the ADS host. SciX
+Base URL comes from $SCI_PAPER_ADS_BASE and defaults to the ADS host. SciX
 serves the same v1 surface, so moving between them is one variable.
 
 Exit codes: 0 fine, 2 the request or the configuration failed, 3 export
@@ -146,7 +146,7 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         raise AdsError(
             f"refused an HTTP {code} redirect to {_safe(newurl)}. The token is "
             "only ever sent to the configured API host. If ADS has genuinely "
-            "moved, set ASTRO_PAPER_ADS_BASE to the new base URL.")
+            "moved, set SCI_PAPER_ADS_BASE to the new base URL.")
 
 
 def _require_tls(base):
@@ -166,15 +166,15 @@ def _require_tls(base):
     if parts.scheme == "https" or parts.hostname in LOOPBACK:
         return
     raise AdsError(
-        f"refusing to send the token to {_safe(base)}: ASTRO_PAPER_ADS_BASE must "
+        f"refusing to send the token to {_safe(base)}: SCI_PAPER_ADS_BASE must "
         "use https (localhost excepted). Both api.adsabs.harvard.edu and "
         "api.scixplorer.org serve the v1 surface over https.")
 
 
 def _request(path, params=None, payload=None):
-    # `or`, not a default argument: `export ASTRO_PAPER_ADS_BASE=` leaves the
+    # `or`, not a default argument: `export SCI_PAPER_ADS_BASE=` leaves the
     # variable set and empty, which would otherwise build a host-less URL.
-    base = (os.environ.get("ASTRO_PAPER_ADS_BASE") or DEFAULT_BASE).rstrip("/")
+    base = (os.environ.get("SCI_PAPER_ADS_BASE") or DEFAULT_BASE).rstrip("/")
     _require_tls(base)
     url = f"{base}/{path}"
     if params:

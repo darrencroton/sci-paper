@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{astropaper}[2026/08/21 v1.0 honest gap markers for incomplete drafts]
+\ProvidesPackage{scipaper}[2026/08/21 v1.0 honest gap markers for incomplete drafts]
 
 % \gap{kind}{note} -- kinds: number, cite, q, logic, todo
 %   default (draft): renders loudly inline and in the margin
@@ -36,7 +36,7 @@
 % internals there instead of surviving as itself.
 \ifap@final
   \DeclareRobustCommand{\gap}[2]{%
-    \PackageError{astropaper}{Unfilled \string\gap{#1} in final mode: #2}%
+    \PackageError{scipaper}{Unfilled \string\gap{#1} in final mode: #2}%
       {Fill this gap, or drop the [final] option in main.tex to build a draft.}}
 \else
   \DeclareRobustCommand{\gap}[2]{\textcolor{red}{\textbf{[GAP #1: #2]}}\ap@margin{#1}}

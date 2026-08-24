@@ -21,7 +21,7 @@ directory or a subdirectory of it, so look both places:
 
 ```sh
 ls paper/STATE.md */paper/STATE.md 2>/dev/null
-grep -l 'astro-paper: begin' CLAUDE.md 2>/dev/null
+grep -l 'sci-paper: begin' CLAUDE.md 2>/dev/null
 ```
 
 **If either finds something, this is not a new paper.** The workspace root is the
@@ -32,7 +32,7 @@ files below, then ask what the author wants re-ingested before touching a thing.
 **If it does not, this is the one session in the project with no state to read**
 — and the only one where the shared files come first.
 
-Either way, read from the astro-paper installation (the directory holding this
+Either way, read from the sci-paper installation (the directory holding this
 skill — `../_shared/`):
 
 - `_shared/memory.md`
@@ -167,16 +167,16 @@ path, the build command — is wired in here or is not wired in at all.
 
 The workspace root (`<ws>`) was settled in §1a. Resolve **the installation
 root** now, per *Locating the installation* in `_shared/house-rules.md`; it is
-written `<astro-paper>` below and is never guessed.
+written `<sci-paper>` below and is never guessed.
 
 ### 5a. Copy the skeleton into the workspace root
 
 ```sh
 mkdir -p "<ws>"
-for f in "<ws>/manuscript/main.tex" "<ws>/manuscript/astropaper.sty"; do
+for f in "<ws>/manuscript/main.tex" "<ws>/manuscript/scipaper.sty"; do
   [ -e "$f" ] && printf 'pre-existing: %s\n' "$f"
 done
-cp -Rn "<astro-paper>/skeleton/paper" "<astro-paper>/skeleton/manuscript" "<ws>/"
+cp -Rn "<sci-paper>/skeleton/paper" "<sci-paper>/skeleton/manuscript" "<ws>/"
 mkdir -p "<ws>/manuscript/sections"
 ```
 
@@ -220,7 +220,7 @@ protocol never engages.
 If there is **no** `CLAUDE.md`, copy the skeleton's and fill it in:
 
 ```sh
-cp -n "<astro-paper>/skeleton/CLAUDE.md" ./CLAUDE.md
+cp -n "<sci-paper>/skeleton/CLAUDE.md" ./CLAUDE.md
 ```
 
 If there **is** one — the common case in an existing project — do not overwrite
@@ -228,14 +228,14 @@ it and do not rewrite the author's content. Say what you are about to add, get a
 yes, and **append one delimited block**:
 
 ```markdown
-<!-- astro-paper: begin -->
-## Paper workspace (astro-paper)
+<!-- sci-paper: begin -->
+## Paper workspace (sci-paper)
 
 **Workspace root:** `paper-quenching/` — every path below is relative to it.
 
 **First action, every session:** read `paper/STATE.md` in full, then
-`<astro-paper>/skills/_shared/memory.md` and
-`<astro-paper>/skills/_shared/house-rules.md`. Those two are the authority on
+`<sci-paper>/skills/_shared/memory.md` and
+`<sci-paper>/skills/_shared/house-rules.md`. Those two are the authority on
 how to behave here and are deliberately not restated.
 
 | Path | Owner | |
@@ -253,12 +253,12 @@ how to behave here and are deliberately not restated.
 
 Keep `-interaction=nonstopmode` or a LaTeX error waits at the interactive `?`
 prompt and the build hangs instead of failing.
-<!-- astro-paper: end -->
+<!-- sci-paper: end -->
 ```
 
 Four things about that block:
 
-- **`<astro-paper>` is substituted with the resolved absolute path**, and the
+- **`<sci-paper>` is substituted with the resolved absolute path**, and the
   workspace root with the real directory name. This block is the record of both;
   every later session reads them here instead of resolving them again.
 - **The directory map is the one the author actually has.** The `../analysis/`
@@ -271,7 +271,7 @@ Four things about that block:
 - **`## `, not `# `.** It is being appended into someone else's document.
 
 If the author would rather their `CLAUDE.md` were not touched at all, the block
-goes in `<ws>/paper/CLAUDE-astro-paper.md` and they are told it must be read
+goes in `<ws>/paper/CLAUDE-sci-paper.md` and they are told it must be read
 manually. Say plainly that this costs the automatic first-action pointer, which
 is the whole mechanism this step installs.
 
@@ -285,7 +285,7 @@ touch .gitignore
 while IFS= read -r l; do
   [ -n "$l" ] || continue
   grep -qxF "$l" .gitignore || printf '%s\n' "$l" >> .gitignore
-done < "<astro-paper>/skeleton/.gitignore"
+done < "<sci-paper>/skeleton/.gitignore"
 ```
 
 **The list is read from `skeleton/.gitignore`, never retyped here.** It is the

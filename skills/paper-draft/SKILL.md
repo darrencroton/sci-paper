@@ -17,7 +17,7 @@ Work from the workspace root, which `CLAUDE.md` names and
 `_shared/house-rules.md` defines; every path below is relative to it.
 
 Read `paper/STATE.md` in full first — it is the first action of every session,
-and nothing here changes that. Then, from the astro-paper installation
+and nothing here changes that. Then, from the sci-paper installation
 (`../_shared/` relative to this skill — `_shared/house-rules.md` gives the rule
 for resolving the installation root if a path above `skills/` is needed):
 

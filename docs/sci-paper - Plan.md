@@ -1,4 +1,4 @@
-# astro-paper — Plan
+# sci-paper — Plan
 
 **Version:** 2.0
 **Date:** 2026-08-22
@@ -60,7 +60,7 @@ A paper is almost never written in an empty directory. The normal case is an exi
 
 ```
 my-project/                      # the working directory — the author's, untouched
-├── CLAUDE.md                    # gets an appended astro-paper block naming the workspace
+├── CLAUDE.md                    # gets an appended sci-paper block naming the workspace
 ├── .gitignore                   # gets the build-artefact lines appended
 ├── data/  src/  ...             # untouched
 └── paper-quenching/             # THE WORKSPACE ROOT
@@ -95,7 +95,7 @@ Two things follow, and they are what keep this simple:
 ├── manuscript/
 │   ├── main.tex               # journal class + \input of sections
 │   ├── sections/*.tex
-│   ├── astropaper.sty         # the gap-marker package
+│   ├── scipaper.sty         # the gap-marker package
 │   └── refs.bib               # verbatim ADS exports only
 └── .build/                    # gitignored: latexmk output, rendered pages, fetched PDFs
 ```
@@ -118,7 +118,7 @@ The single most important design decision, because it is what makes a new conver
 
 | File | Loaded | Lifespan | Contains |
 |---|---|---|---|
-| `CLAUDE.md` | automatically, every session | stable — changes rarely | **how to behave, and where things are**: the workspace root (§4.1), the astro-paper install path, directory map, venue, build command, the pointer to `STATE.md` |
+| `CLAUDE.md` | automatically, every session | stable — changes rarely | **how to behave, and where things are**: the workspace root (§4.1), the sci-paper install path, directory map, venue, build command, the pointer to `STATE.md` |
 | `paper/STATE.md` | first action of every session | **only true today** | **where we are**: section status, what's settled, what's open, next action, and what is currently in flux about the argument |
 | `paper/journal.md` | on demand | permanent archive | **how we got here**: dated entries, what was discussed, what was decided and why |
 
@@ -206,9 +206,9 @@ One LaTeX macro, five kinds:
 \gap{todo}{expand once the z=2 run finishes}
 ```
 
-`manuscript/astropaper.sty` is small — 124 lines as built, most of it the AAS journal-abbreviation block that verbatim ADS BibTeX turned out to require (§14). Mode is a package option — `\usepackage{astropaper}` is draft, `\usepackage[final]{astropaper}` is final — so switching it is a one-word edit in `main.tex` and is visible in the diff. In `draft` mode (the default) markers render loudly inline and in the margin. In `final` mode **each `\gap` invocation** raises `\PackageError` and the build fails. The error fires on invocation, never at package load — a gap-free manuscript must build cleanly in `final` mode, or the mechanism is worthless.
+`manuscript/scipaper.sty` is small — 124 lines as built, most of it the AAS journal-abbreviation block that verbatim ADS BibTeX turned out to require (§14). Mode is a package option — `\usepackage{scipaper}` is draft, `\usepackage[final]{scipaper}` is final — so switching it is a one-word edit in `main.tex` and is visible in the diff. In `draft` mode (the default) markers render loudly inline and in the margin. In `final` mode **each `\gap` invocation** raises `\PackageError` and the build fails. The error fires on invocation, never at package load — a gap-free manuscript must build cleanly in `final` mode, or the mechanism is worthless.
 
-Collecting the gaps is `grep -n '\\gap{' manuscript/main.tex manuscript/sections/*.tex`. Restricted to `.tex`, because `astropaper.sty` contains the macro's own definition. It does not need a tool.
+Collecting the gaps is `grep -n '\\gap{' manuscript/main.tex manuscript/sections/*.tex`. Restricted to `.tex`, because `scipaper.sty` contains the macro's own definition. It does not need a tool.
 
 **What this does and does not guarantee.** It guarantees a *marked* gap cannot reach a submitted manuscript. It does not detect a free-text `TODO`, `TBD` or `XXX`, and it cannot detect a number the agent wrote instead of marking — that is what §6.2 addresses. `/paper-finish` sweeps the free-text placeholders with one additional grep (§7.6).
 
@@ -290,7 +290,7 @@ Reads `notes/`, **looks at** every figure (converting EPS/PS with `pdftoppm` or 
 
 Fetches the target journal's current template and class file into `manuscript/`, and scaffolds the workspace: it proposes the workspace root (§4.1), creates `paper/` and `manuscript/` inside it, and wires the working directory by writing or **appending to** the root `CLAUDE.md` and `.gitignore`.
 
-**The append path is the normal one, not the edge case.** An existing project already has both files, and a scaffold that merely declines to overwrite them leaves the workspace unwired: no first-action pointer, no recorded install path, and `.build/` tracked in git. The `CLAUDE.md` block is delimited by `<!-- astro-paper: begin -->` / `<!-- astro-paper: end -->` markers so it can be rewritten in place on a later run without ever touching the author's own text; `.gitignore` gets only the lines it is missing.
+**The append path is the normal one, not the edge case.** An existing project already has both files, and a scaffold that merely declines to overwrite them leaves the workspace unwired: no first-action pointer, no recorded install path, and `.build/` tracked in git. The `CLAUDE.md` block is delimited by `<!-- sci-paper: begin -->` / `<!-- sci-paper: end -->` markers so it can be rewritten in place on a later run without ever touching the author's own text; `.gitignore` gets only the lines it is missing.
 
 **The venue does not have to be decided yet.** Early on it usually is not. Absent a choice the scaffold uses a plain `article` class, and switching later is a `main.tex` preamble change plus a re-fetch — the prose does not care. Refusing to start until the author picks a journal would be exactly the wrong kind of gate.
 
@@ -422,13 +422,13 @@ The bolded fields are not optional extras: without the abstract, the novelty and
 
 **Redirects are rejected**, or at minimum every cross-origin redirect is, and the target is reported without the token. `urllib` follows redirects by default and can carry an `Authorization` header to a host that was never intended to see it. This is a few lines and it is the one security-relevant behaviour in the project.
 
-Token resolution, in order, so it works on a laptop and on OzSTAR/NERSC alike: macOS Keychain → `ADS_API_TOKEN` → `ADS_DEV_KEY` → `SCIX_API_TOKEN` → `~/.ads/dev_key`. Never in a URL, never on argv, never logged. Base URL from `ASTRO_PAPER_ADS_BASE`, defaulting to `https://api.adsabs.harvard.edu/v1`; SciX is a one-variable switch, as both hosts serve the same v1 Solr surface. Every command whose input is a *query* takes an explicit row limit with a bounded default, so a broad query neither truncates silently nor pulls an unbounded result set. `export` is exempt and deliberately so: it takes an explicit list of bibcodes, so its input already is its bound.
+Token resolution, in order, so it works on a laptop and on OzSTAR/NERSC alike: macOS Keychain → `ADS_API_TOKEN` → `ADS_DEV_KEY` → `SCIX_API_TOKEN` → `~/.ads/dev_key`. Never in a URL, never on argv, never logged. Base URL from `SCI_PAPER_ADS_BASE`, defaulting to `https://api.adsabs.harvard.edu/v1`; SciX is a one-variable switch, as both hosts serve the same v1 Solr surface. Every command whose input is a *query* takes an explicit row limit with a bounded default, so a broad query neither truncates silently nor pulls an unbounded result set. `export` is exempt and deliberately so: it takes an explicit list of bibcodes, so its input already is its bound.
 
 396 lines as built. The estimate at design time was 200; the difference is almost entirely the token-safety work in §14, which was not foreseen and was worth every line of it. It exists because the alternatives are worse: the API needs a bearer token in a header, it paginates, and `export` is what keeps rule 2 honest.
 
 **Deliberately not an MCP server.** The official `adsabs/scix-mcp` covers this ground, but it brings node, `npx` and MCP client configuration for what is a few hundred lines of stdlib Python, and it puts the verbatim-BibTeX guarantee in someone else's repository. A script the skills invoke is simpler to install, simpler to test, and version-pinned by being in this repo.
 
-**So the code in this project is `tools/ads.py` and `astropaper.sty` — a few hundred lines in total.** Everything else that gets built is skill content and the memory convention.
+**So the code in this project is `tools/ads.py` and `scipaper.sty` — a few hundred lines in total.** Everything else that gets built is skill content and the memory convention.
 
 The consequence, which should be stated plainly: **the entire value of this project lies in how specific the skill files are.** Vague skill prose will produce generic output, and no amount of Python fixes that. Effort goes into the actual query patterns, the actual iteration checklist, the actual rhetorical moves — not into infrastructure.
 
@@ -498,7 +498,7 @@ Each phase leaves the system usable. Nothing is built ahead of a demonstrated ne
 
 | Phase | Deliverable | Done when | Status |
 |---|---|---|---|
-| **P1** | Workspace skeleton, `CLAUDE.md` template, `astropaper.sty`, `_shared/memory.md` + `house-rules.md` | scaffolding a repo by hand produces a draft-mode build that fails in `final` mode with one gap present | **done**, verified 2026-08-21 (§14.1) |
+| **P1** | Workspace skeleton, `CLAUDE.md` template, `scipaper.sty`, `_shared/memory.md` + `house-rules.md` | scaffolding a repo by hand produces a draft-mode build that fails in `final` mode with one gap present | **done**, verified 2026-08-21 (§14.1) |
 | **P2** | `/paper-start` + `/paper-draft` | **the minimum useful system.** A real `notes/` + `figures/` directory produces a compiling, honestly-incomplete body draft | **done**, verified 2026-08-21 (§14.2) |
 | **P3** | `tools/ads.py` + `/paper-lit` + `paper/lit/` convention | all four modes run; BibTeX arrives verbatim from `export`; a novelty check returns a real prior-work answer, including an unwelcome one | **done**, verified 2026-08-22 (§14.3) |
 | **P4** | `/paper-iterate` | a session produces substantive structural criticism, not copy-editing, and lands in `journal.md`. **Prototype this one against a real draft before writing the final skill file** — it carries the most value and the most risk, and it is the only skill whose quality cannot be judged by reading it | **next** |
@@ -589,7 +589,7 @@ catch.
 Three properties, each re-verified after every subsequent change to the package:
 
 - draft mode builds — exit 0;
-- `[final]` mode with gaps present fails — exit 12, one `Package astropaper
+- `[final]` mode with gaps present fails — exit 12, one `Package scipaper
   Error` per `\gap` invocation;
 - `[final]` mode with **zero** gaps builds cleanly — exit 0. This is the
   property that makes the mechanism worth anything, and it is the one an
@@ -612,7 +612,7 @@ reading it.**
    which a plain `article` class does not define — so the *first* exported
    reference broke the build with `Undefined control sequence`. That made rule 2
    (§6.2) unusable for exactly as long as the venue is undecided, which is
-   deliberately most of a project's life. `astropaper.sty` now provides the
+   deliberately most of a project's life. `scipaper.sty` now provides the
    abbreviations via `\providecommand` inside `\AtBeginDocument`, so a real
    journal class always wins.
 
@@ -713,7 +713,7 @@ userinfo spoof.
 **Also fixed in `ads.py`:** a `TypeError` in `resolve`'s sort key when a record
 has no `year`; a silently-empty result when a DOI or arXiv id is pasted as a URL
 or carries a `.pdf` or `vN` suffix; a traceback rather than a message on a
-stalled read or a non-JSON body; an empty-but-set `ASTRO_PAPER_ADS_BASE`
+stalled read or a non-JSON body; an empty-but-set `SCI_PAPER_ADS_BASE`
 building a host-less URL; and `export`'s missing-bibcode check using a substring
 match, so one bibcode being a prefix of another hid a dropped reference.
 
@@ -849,7 +849,7 @@ paper's directory is the recorded install path (§4.1).
 ### 16.1 Where it lives
 
 This repo is composed into the shared agent home (`~/.agents`, see that repo's
-`README.md`) as a manifest-managed clone under `repos/astro-paper`. Setup links
+`README.md`) as a manifest-managed clone under `repos/sci-paper`. Setup links
 every directory in `skills/` that contains a `SKILL.md` into the single public
 catalogue `~/.agents/skills/`, which each harness points at in turn. So
 `/paper-start`, `/paper-draft` and `/paper-lit` are available from **any**
@@ -900,7 +900,7 @@ command above and nothing else changes.
 
 ### 16.4 Working on the system while using it
 
-The catalogue clone under `repos/astro-paper` is managed by setup, which pulls
+The catalogue clone under `repos/sci-paper` is managed by setup, which pulls
 it. Development happens in the primary clone, not in the managed one: **edit,
 commit, push, then re-run `setup.sh`** to bring the global installation forward.
 Editing the managed clone directly means the next `setup.sh` pull either
