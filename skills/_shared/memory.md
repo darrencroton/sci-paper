@@ -12,7 +12,8 @@ exist and get written. That is the whole mechanism.
 
 | File | Read | Lifespan | Holds |
 |---|---|---|---|
-| `CLAUDE.md` | automatically | stable | **how to behave, and where things are** — the workspace root, the sci-paper install path, the directory map, venue, build command, the pointer to `STATE.md` |
+| `CLAUDE.md` (working directory) | automatically | stable | **an index only** — which `sci-paper-workspace*/` directories exist here and their short names; see **The workspace root** in `house-rules.md` |
+| `CLAUDE.md` (workspace root) | automatically, once inside it | stable | **how to behave, and where things are** — the sci-paper install path, the directory map, venue, build command, the pointer to `STATE.md` |
 | `paper/STATE.md` | first action of every session | **only true today** | **where we are** — section status, what is settled, what is open, what to do next |
 | `paper/journal.md` | on demand | permanent | **how we got here** — dated entries: discussed, decided, changed, open |
 
@@ -37,6 +38,9 @@ Then, only as the work requires:
 - `paper/outline.md` — whenever the argument or section ordering is in play. It
   is the **sole authority** for the argument.
 - `paper/open-questions.md` — whenever a `\gap{q}` or an open decision comes up.
+- `paper/voice.md` — before drafting or framing any prose, if it exists. Written
+  by `/paper-voice`; absent for a paper that has not set one up, which changes
+  nothing.
 - `paper/lit/index.md` — before any literature search, so the same paper is not
   chased twice.
 - `paper/journal.md` — when the question is *why* something is the way it is.

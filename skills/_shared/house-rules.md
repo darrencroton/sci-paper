@@ -50,26 +50,62 @@ rather than copying a partial skeleton or inventing a location.
 
 A paper is rarely written in an empty directory. The usual case is an existing
 science project — data, analysis code, its own git repo, often its own
-`CLAUDE.md` — with the paper as one part of it. So the paper's workspace is
-**a named subdirectory** of the working directory, and every path in this file
-and in every skill is relative to that subdirectory: the **workspace root**.
+`CLAUDE.md` — with the paper as one part of it, and that project is different
+from one paper to the next. So the paper's workspace is **`sci-paper-workspace/`
+(or `sci-paper-workspace-<suffix>/` where a second paper shares the project),
+its own git repository, isolated from the project around it** — and every path
+in this file and in every skill is relative to it: the **workspace root**.
 
-**Find it before doing anything else.** It is named in the `CLAUDE.md` block that
-`/paper-start` writes, under *Workspace root*. Work from there — `cd` into it, or
-prefix paths with it, but do not half-do one and half-do the other. `paper/`,
+**Find it before doing anything else.** Resolution is a short ladder, cheapest
+first:
+
+1. If you are already working inside a `sci-paper-workspace*/` directory, that
+   is the workspace root. Its own `CLAUDE.md` confirms it.
+2. Otherwise, read the working directory's `CLAUDE.md` index block (the one
+   `/paper-start` appends there — under *sci-paper workspaces in this
+   project*) and match the paper being discussed by its **short name**, never
+   by directory name — the directory can be renamed by hand at any time
+   (nothing inside a workspace depends on its own directory name to function),
+   **provided the rename keeps the `sci-paper-workspace` prefix** — the glob
+   below and the working directory's own `.gitignore` both match on it, and a
+   rename that drops it falls out of both at once.
+3. If the index has no match, or looks stale, **glob for `sci-paper-workspace*/`
+   and confirm each candidate structurally** — `paper/STATE.md` and
+   `manuscript/` both present, the same "confirm by fingerprint, not by a
+   recorded string" approach used to locate the installation above — then read
+   each candidate's `STATE.md` header for its short name.
+4. Once resolved, **upsert only that one row of the index** if it was missing
+   or wrong. Never rewrite the whole block: a second paper's row must survive
+   the first paper's session touching the file.
+
+Work from the workspace root once found — `cd` into it, or prefix paths with
+it, but do not half-do one and half-do the other. `paper-voice/`, `paper/`,
 `manuscript/` and `.build/` are always directly inside it.
 
-**It may be `.`**, and is whenever the working directory *is* the paper. Nothing
-downstream changes: the layout inside the workspace root is identical either way,
-which is the point of naming it.
+**It is never `.` and never the working directory itself.** Isolation is the
+point: the workspace is always one directory below the project it draws from,
+always its own repository, and the project's own `.gitignore` excludes it by a
+glob (`sci-paper-workspace*/`) so that holds regardless of a later rename —
+**provided the rename keeps the prefix**, per the resolution ladder above.
+Nothing about the working directory's own git history is ever touched by
+anything sci-paper does.
 
-**The author's directories are found, not placed.** `notes/`, `figures/` and
-`code/` are the author's, so they are used wherever they already are and under
-whatever they are already called — `analysis/`, `plots/`, or a `notes/` in the
-directory above. The `CLAUDE.md` block records the resolved paths. A `% src:`
-anchor is written relative to the workspace root and may point outside it, so
-`% src: ../analysis/plot_lf.py:88 (fit_break)` is legitimate when that is where
-the code is.
+**The author's directories are found, not placed, and now live outside the
+workspace root.** `notes/`, `figures/` and `code/` are the author's project
+material, not sci-paper's, so they stay wherever the project already keeps
+them and under whatever they are already called — `analysis/`, `plots/`, a
+`notes/` at the project root. The workspace's own `CLAUDE.md` records the
+resolved paths. A `% src:` anchor is written relative to the workspace root and
+normally points outside it now, so `% src: ../analysis/plot_lf.py:88
+(fit_break)` is the ordinary case, not the exception.
+
+**`paper-voice/` is different: it is author-supplied, but for sci-paper's use,
+so it lives inside the workspace root, beside `paper/` rather than inside it.**
+It has nowhere else to be found, unlike `notes/`/`figures/`/`code/` — the
+author assembles it specifically for `/paper-voice` (see that skill), and
+where it exists, `paper/voice.md` — the profile distilled from it — is
+consulted by `/paper-draft` and `/paper-frame` by default. Its absence changes
+nothing.
 
 **Nothing the author owns is ever moved to tidy the layout.** Not a note, not a
 figure, not a script. If the material sits somewhere awkward, say so and use it
@@ -245,6 +281,20 @@ every sentence buries the section diffs and devalues the marks that matter.
 
 ---
 
+## Voice
+
+**Where `paper/voice.md` exists, drafted and framed prose matches it.** It is
+written by `/paper-voice`, from whatever the author has put in `paper-voice/`,
+and it is opt-in by existence rather than a default every paper gets: no
+`paper-voice/`, no change in behaviour. Where it does exist, treat it the same
+way a `_shared/sections/<role>.md` rhetorical-moves file is treated — read
+before writing, not restated here.
+
+This is a per-paper setting, never a system-wide one. Do not generalise a
+voice profile from one paper into how prose is drafted for a different one.
+
+---
+
 ## Non-destructive editing
 
 The author edits `manuscript/` directly and constantly. That is the point of
@@ -260,3 +310,8 @@ acceptable.
 
 The same applies to `paper/`: `journal.md` is append-only, and `STATE.md` is
 rewritten deliberately, not clobbered.
+
+It also applies to the working directory's `CLAUDE.md` index (**The workspace
+root**, above): a second paper's row in that index is exactly like another
+author's paragraph — upsert your own workspace's row, never rewrite the whole
+block.

@@ -26,6 +26,12 @@ for resolving the installation root if a path above `skills/` is needed):
 
 Then `paper/outline.md`. They are the authority and are not restated here.
 
+**If `paper/voice.md` exists, read it too, before writing a word.** It is this
+paper's own distilled style profile, written by `/paper-voice` from whatever
+the author put in `paper-voice/`, and `_shared/house-rules.md`'s **Voice**
+section is the rule: where it exists, match it. Where it does not exist,
+nothing about this step changes.
+
 **Introduction, Conclusions, Abstract and Title are not this skill.** They are
 `/paper-frame`, which has the technique for writing them from an established
 body. If asked for one, say so and offer to run that instead.
@@ -148,15 +154,23 @@ reader sees lives in the `\section{}` line, not in the path.
   EPS or PS. Where a figure exists only as EPS/PS: first look for a sibling in
   an includable format and check it is the *same plot* — a `_old` or `_v2`
   sibling is often a different one, and this directory is normally untidy.
-  Otherwise convert it once, alongside the original, and say that you did:
+  Otherwise convert it once, **alongside the original** — figures/, wherever
+  the survey found it, which is normally outside the workspace root (§4.1) —
+  and say that you did:
 
   ```sh
   gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dEPSCrop \
      -sOutputFile=figures/fig.pdf figures/fig.eps
   ```
 
-  Never overwrite an author figure, and never choose between two versions of one
-  figure without asking which is current.
+  **This is the one deliberate exception to "everything sci-paper creates
+  stays inside the workspace."** `\graphicspath` resolves relative to wherever
+  the author's figures already are, so a converted derivative has to sit in
+  that same directory or the build will not find it — putting it in
+  `.build/` instead would need a second `\graphicspath` entry for one figure,
+  which is more machinery than the problem is worth. Never overwrite an author
+  figure, and never choose between two versions of one figure without asking
+  which is current.
 - Units and $h$-scalings are copied, never converted — `_shared/house-rules.md`.
 - Write the gap markers as you go, with a note that says what would fill them —
   `\gap{number}{need the value from run 3}`, not `\gap{number}{TBD}`.
