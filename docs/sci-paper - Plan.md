@@ -3,7 +3,7 @@
 **Version:** 3.0
 **Date:** 2026-08-31
 **Author:** Darren Croton (Swinburne), with Claude Opus 5
-**Status:** P1–P3 built and validated, retrofitted onto the isolated-workspace layout below · P3.5 (isolation + voice) built this revision, pending fresh dogfood re-verification · P4 next
+**Status:** P1–P3 built and validated, retrofitted onto the isolated-workspace layout below · P3.5 (isolation + voice) built and externally reviewed this revision, pending its first live `/paper-start` run (no synthetic fixture stands in any more — §14) · P4 next
 
 > **This document is the specification and the build record.** §1–§13 are the design and are the authority on what gets built. §14–§16 record what has actually been built, what was verified and how, which decisions are settled, and how the system is installed. There is no separate status document: if something matters and is durable, it is here.
 
@@ -13,7 +13,7 @@
 > **v1.2** — panel rounds 2 and 3. Added the "capture that" exception to the never-edit-notes rule (§3), widened the legitimate `% src:` sources, and settled the `article`-class default when no venue is chosen. This revision was mislabelled `1.0` in its own header, which is how it came to be found.
 > **v2.0** (2026-08-22) — the build record folded in, and one design change. §11 carries per-phase status and evidence; §14 the validation record; §15 the settled decisions and the approaches already declined; §16 installation. The two supporting evidence documents (`Corpus Evidence.md`, `Ecosystem Research Record.md`) were retired to the local, untracked `docs/archive/`: every judgement they still supported is now stated here directly, so nothing in this plan depends on reading them.
 > The design change is §4.1, the **workspace root**. Preparing the system for global installation exposed the assumption that the working directory *is* the paper — so in a real project directory `/paper-start` skipped the existing `CLAUDE.md` and `.gitignore` rather than merging into them, and left the workspace looking scaffolded while nothing pointed a session at `paper/STATE.md`. The paper now scaffolds into a named subdirectory of the working directory by default, with the root `CLAUDE.md` and `.gitignore` appended to. The layout *inside* the workspace is unchanged, so P1–P3 remain valid; §14.2 records that the new path is specified and not yet dogfooded.
-> **v3.0** (2026-08-31) — two design changes, worked through in conversation before being written here. **First, workspace isolation** (§4.1 rewritten): the workspace root from v2.0 is retired in favour of `sci-paper-workspace*/`, a fixed-name (glob-suffixed for a second paper), always-a-subdirectory, **independently git-initialised** directory that holds the entire sci-paper footprint. The working directory's own repo never sees it — one glob line in its `.gitignore` — so a paper's draft, memory and build litter can never pollute the project it is drawn from, regardless of how different that project is from one paper to the next. `notes/`, `figures/` and `code/` are unaffected: they stay in the working directory, found rather than placed, now always reached by a relative path that leaves the workspace. This is a strictly bigger version of the v2.0 change and it retires the `.` case entirely — collapsing the workspace onto the working directory is exactly the pollution being designed against. **Second, the voice profile** (new §7.7, `/paper-voice`): the author supplies past papers or style notes in a workspace-local `paper-voice/`, which is distilled once into `paper/voice.md` and then consulted by every drafting skill — a durable, per-paper, opt-in-by-existence style reference, distinct from the retired-in-v1's-predecessor idea of a system-wide author corpus (§15). Both changes touch the already-built, already-validated P1–P3 skills — `paper/` and `manuscript/` keep their internal shape and their own path references are unchanged, so the retrofit is a relocation (one directory deeper) rather than a rewrite, but §14 is honest that the `.dogfood/quenching` fixture is a root-layout workspace and has not yet been re-run against the new shape.
+> **v3.0** (2026-08-31) — two design changes, worked through in conversation before being written here. **First, workspace isolation** (§4.1 rewritten): the workspace root from v2.0 is retired in favour of `sci-paper-workspace*/`, a fixed-name (glob-suffixed for a second paper), always-a-subdirectory, **independently git-initialised** directory that holds the entire sci-paper footprint. The working directory's own repo never sees it — one glob line in its `.gitignore` — so a paper's draft, memory and build litter can never pollute the project it is drawn from, regardless of how different that project is from one paper to the next. `notes/`, `figures/` and `code/` are unaffected: they stay in the working directory, found rather than placed, now always reached by a relative path that leaves the workspace. This is a strictly bigger version of the v2.0 change and it retires the `.` case entirely — collapsing the workspace onto the working directory is exactly the pollution being designed against. **Second, the voice profile** (new §7.7, `/paper-voice`): the author supplies past papers or style notes in a workspace-local `paper-voice/`, which is distilled once into `paper/voice.md` and then consulted by every drafting skill — a durable, per-paper, opt-in-by-existence style reference, distinct from the retired-in-v1's-predecessor idea of a system-wide author corpus (§15). Both changes touch the already-built, already-validated P1–P3 skills — `paper/` and `manuscript/` keep their internal shape and their own path references are unchanged, so the retrofit is a relocation (one directory deeper) rather than a rewrite. Reviewed by an external panel before landing (§14.2b); its confirmed findings are already folded into the files. Same-day addendum: the `.dogfood/quenching` acceptance fixture, a root-layout workspace that no longer matched this shape, was archived rather than migrated — §14's opening note and §14.2a say why, and `archive/dogfood-quenching/README.md` carries the same reasoning beside the material itself.
 
 > **Relationship to earlier work.** This supersedes an earlier design that solved a different problem: mechanically verifying a finished manuscript's integrity via approval registries, gates and deterministic checkers. On author direction that project is abandoned. The author is the verifier and reads the paper in detail, repeatedly. What is needed instead is a **writing collaborator with durable memory and a strong literature arm**. Why that design was abandoned rather than trimmed is in §12 and §15.
 
@@ -549,7 +549,7 @@ Each phase leaves the system usable. Nothing is built ahead of a demonstrated ne
 | **P1** | Workspace skeleton, `CLAUDE.md` template, `scipaper.sty`, `_shared/memory.md` + `house-rules.md` | scaffolding a repo by hand produces a draft-mode build that fails in `final` mode with one gap present | **done**, verified 2026-08-21 (§14.1) |
 | **P2** | `/paper-start` + `/paper-draft` | **the minimum useful system.** A real `notes/` + `figures/` directory produces a compiling, honestly-incomplete body draft | **done**, verified 2026-08-21 (§14.2) |
 | **P3** | `tools/ads.py` + `/paper-lit` + `paper/lit/` convention | all four modes run; BibTeX arrives verbatim from `export`; a novelty check returns a real prior-work answer, including an unwelcome one | **done**, verified 2026-08-22 (§14.3) |
-| **P3.5** | Workspace isolation (`sci-paper-workspace*/`, §4.1) retrofitted into P1–P3; `/paper-voice` (§7.7) added | `/paper-start` produces an isolated, git-initialised workspace whose parent repo never sees it; a second paper in the same project resolves by short name (§4.1.1); a `paper-voice/` folder produces a `paper/voice.md` that visibly changes drafted prose | **built** this revision (§14.2a) — mechanically consistent, **pending a fresh dogfood pass**: the existing `.dogfood/quenching` fixture is a root-layout workspace and has not yet been rebuilt against the new shape |
+| **P3.5** | Workspace isolation (`sci-paper-workspace*/`, §4.1) retrofitted into P1–P3; `/paper-voice` (§7.7) added | `/paper-start` produces an isolated, git-initialised workspace whose parent repo never sees it; a second paper in the same project resolves by short name (§4.1.1); a `paper-voice/` folder produces a `paper/voice.md` that visibly changes drafted prose | **built** this revision (§14.2a, §14.2b) — mechanically consistent and externally reviewed, **pending its live test**: no synthetic fixture stands in for it any more (§14), so the first real `/paper-start` run is what closes this out |
 | **P4** | `/paper-iterate` | a session produces substantive structural criticism, not copy-editing, and lands in `journal.md`. **Prototype this one against a real draft before writing the final skill file** — it carries the most value and the most risk, and it is the only skill whose quality cannot be judged by reading it | **next** |
 | **P5** | `/paper-frame` + `/paper-finish` | Intro and Conclusions written from a completed body; `final` build succeeds with zero gaps | not started |
 | **P6** | Dogfood on a real paper end to end | the author would use it again | not started |
@@ -568,8 +568,8 @@ that runs the §7.3 moves by hand against an actual draft and keeps only what
 produced substantive structural criticism, then a second that writes the skill
 file from what survived. Nothing else shares either sitting — the failure mode
 is degenerating into copy-editing, and that is invisible if the session is also
-busy with something else. It also wants a draft thicker than the two-section
-acceptance fixture, so it is better run against a real paper. This is the one
+busy with something else. It also wants a draft thicker than any small synthetic fixture could offer
+(§14), so it is better run against a real paper. This is the one
 skill that uses subagent isolation (the claims-blind read, §7.3).
 
 **P5 — one session, both skills.** `/paper-frame` and `/paper-finish` share a
@@ -624,14 +624,22 @@ Named so that scope creep is visible when it is proposed:
 What has actually been built, and what was verified rather than asserted. Every
 claim here was produced by running something, not by reading it.
 
-The acceptance fixture is `.dogfood/quenching/` — local only, untracked, and
-**kept deliberately**. It is a purpose-built messy paper directory: three
-free-form notes, five figures (one EPS-only, one orphaned, one misleading `_old`
-sibling that is a *different* plot), two analysis scripts carrying twelve
-planted inconsistencies, and now P3's literature output on top. It is the
-cheapest regression test for any later change to `/paper-start`, `/paper-draft`
-or `/paper-lit`; `.figsrc/PLANTED.md` lists what each defect was planted to
-catch.
+**§14.1–§14.3 describe validation against a synthetic fixture that no longer
+exists.** `.dogfood/quenching/` — a purpose-built messy paper directory: three
+free-form notes, five figures with planted defects, two analysis scripts
+carrying twelve planted inconsistencies, and P3's literature output on top —
+was what P1–P3 were actually run against, and §14.1–§14.3 are left as the
+honest record of that. It was **archived, not migrated, at v3.0** (2026-08-31):
+the fixture is a root-layout workspace and that shape is retired by the
+isolation redesign (§4.1), so it stopped matching what it was meant to test.
+Hand-restructuring its output into the new shape would not have exercised
+`/paper-start`'s own scaffolding logic — validating that requires a live run
+against unscaffolded input regardless — and the project has a real paper about
+to serve exactly that purpose (§11.1, §14.2a), making a second synthetic
+target, kept in perpetual sync with an evolving design, not worth maintaining.
+It is preserved at `archive/dogfood-quenching/`, with its own note on why, in
+case the raw planted-defect material is worth reusing to build a fresh fixture
+under the current design if that need resurfaces.
 
 ### 14.1 P1 — the gap mechanism
 
@@ -741,15 +749,52 @@ and `_shared/house-rules.md` already resolve for it.
 **What was verified, and what was not.** This section's edits, the three skill
 files, `_shared/house-rules.md` and the restructured `skeleton/` were checked
 for internal consistency — every cross-reference resolves, every path a skill
-now writes matches a path another skill reads. **No live dogfood pass has been
-run against the new shape**: the `.dogfood/quenching` fixture has not been
-migrated or rebuilt, `/paper-start` has not been exercised against a real
-messy `notes/`+`figures/`+`code/` directory under this layout, and no build has
-been re-run through it. That is a real gap in the evidence this plan otherwise
-insists on ("every claim here was produced by running something, not by reading
-it") and it is recorded as owed, not quietly assumed closed. Whoever next runs
-`/paper-start` for real is the test, and P3.5's status stays "pending" until
-that has happened once.
+now writes matches a path another skill reads — and, in a second pass, against
+an external review panel (§14.2b) whose confirmed findings are already folded
+into the files above. **No live dogfood pass has been run against the new
+shape**: `/paper-start` has not been exercised against a real messy
+`notes/`+`figures/`+`code/` directory under this layout, and no build has been
+re-run through it. That is a real gap in the evidence this plan otherwise
+insists on ("every claim here was produced by running something, not by
+reading it") and it is recorded as owed, not quietly assumed closed. There is
+deliberately no synthetic fixture standing in for that live run any more (see
+§14's opening note and §14.2b) — **whoever next runs `/paper-start` for real is
+the test**, and P3.5's status stays "pending" until that has happened once.
+
+### 14.2b How the P3.5 change itself was reviewed
+
+Unlike P1–P3, P3.5 was not run against a fixture before being called done —
+the fixture had just been retired (§14, §14.2a), and the point of retiring it
+was to stop treating a synthetic re-run as equivalent to a live one. What
+substituted for it: a self-review pass by the same session that made the
+changes (which found and fixed two defects: a redundant, conflicting
+`CLAUDE.md`/`.gitignore` copy path, and an ambiguous `.build/` write during
+figure conversion), followed by an external panel via the `orchestrator` skill
+— codex/gpt-5.6-sol at high effort, plus three opencode/openrouter free-tier
+models. Two of the three openrouter reviewers did not deliver usable output
+(one failed twice on an upstream rate limit, one exhausted its budget mid-run
+without reaching a findings section) — a real data point on that tier's
+reliability for this kind of review, not just a process footnote. Codex and
+one openrouter model (nemotron) both returned structured findings.
+
+Every finding was checked against the actual files before being accepted, not
+taken on the reviewer's word — several were confirmed and fixed (an isolation
+exposure window before the `.gitignore` line existed; unanchored later paths in
+`/paper-start`; a `\graphicspath` example that was arithmetically wrong; an
+unstated constraint on workspace renaming that the isolation mechanism actually
+depends on; a stale section citation and a stale skill count; a `/paper-voice`
+emptiness check that could never trigger because the shipped `README.md`
+always satisfies it; a dangling reference to a venue file that does not exist
+yet). Several others were checked and rejected as factually wrong — most
+notably a claim, made independently by two of the reviewers, that the
+workspace directory does not exist yet at the point `/paper-start` converts a
+figure; it does, created one step earlier — or as already-deliberate decisions
+the reviewer had simply not read closely enough (duplicate short names being
+an accepted hygiene problem, not a system requirement, is stated directly in
+§4.1.1). No valid P0/P1 finding survived that check. A second full panel round
+was not run, given the reliability signal already gathered from this one and
+that every accepted finding was independently re-verified by direct file
+inspection rather than trusted as reported.
 
 ### 14.3 P3 — the literature arm
 
