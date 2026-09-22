@@ -1,11 +1,11 @@
 ---
 name: paper-lit
-description: Search the astronomical literature through ADS/SciX in four modes — novelty (has this been done?), build-on (closest prior work and what it left open), support/contradict (bound to one sentence of the draft), and mine (pull comparison values with their exact source). Use for any literature question, for filling a gap{cite}, and for exporting BibTeX into refs.bib.
+description: Search the astronomical literature through ADS/SciX in five modes — novelty (has this been done?), build-on (closest prior work and what it left open), support/contradict (bound to one sentence of the draft), mine (pull comparison values with their exact source), and venue (which journals take this paper, and what shape do papers of this kind take?). Use for any literature question, for choosing a journal, for filling a gap{cite}, and for exporting BibTeX into refs.bib.
 ---
 
 # paper-lit
 
-Four modes, because they are four different jobs:
+Five modes, because they are five different jobs:
 
 | Mode | The question | What comes back |
 |---|---|---|
@@ -13,6 +13,7 @@ Four modes, because they are four different jobs:
 | **build-on** | what is the closest existing work, and what did it leave open? | a ranked shortlist, each with the gap it leaves |
 | **support/contradict** | bound to **one sentence** in the draft | both directions, explicitly |
 | **mine** | pull the numbers I can compare against | values quoted with their exact source location |
+| **venue** | where does this paper go, and what shape should it be? | a ranked venue table with quoted scope and policy, and the section template the closest analogues actually use |
 
 Say which mode, or describe the question and the mode follows from it. The
 modes share the tool and the recording convention below; they do not share a
@@ -320,6 +321,54 @@ then nothing records the caveats.
 
 ---
 
+## Mode: venue
+
+*"Where does this go, and what shape should it be?"*
+
+The one mode not about claims. Run it early — the structural half changes the
+outline, and an outline is cheap to change before anything is drafted.
+
+Output is **two sections of `paper/outline.md`** — venue, and structure — plus
+ordinary rows in `paper/lit/index.md` for the analogues. Not a `<bibcode>.md`.
+
+**Part A — the venues.** Find the journals whose stated scope covers the
+paper, and **quote the scope rather than characterising it**, with the URL and
+the date fetched; policy pages drift continuously, exactly as journal class
+files do. Per venue also record: length norms; code and data availability
+requirements; **review model including anonymity** — a double-anonymous
+journal can be a hard blocker for a software paper whose package is named in
+the abstract; cost; **AI-use policy**, which is now a standard axis and for a
+paper where a model is part of the method outranks scope and prestige; and
+turnaround if findable. Then name the venues ruled out and why, **including
+any that have been archived or closed** — a journal that published an obvious
+precedent may no longer accept submissions, and its back catalogue does not
+say so.
+
+**Part B — the structure.** Read four to six of the closest analogues —
+closest in *kind*, not subject — and report each one's **actual section
+headings in order**, length, figure and table counts, and what the figures do.
+Then name the invariant template and where the variants diverge: a method
+paper, an infrastructure paper, a data-release paper and a comparison project
+are four different shapes, and picking the wrong one is a structural problem
+no prose fixes. Say explicitly if the paper contains something the template
+has **no slot for**, and propose where it goes with the precedent for it —
+that is usually the finding that earns the mode its keep.
+
+**Two fetching hazards specific to publisher sites**, on top of the discipline
+"Mode: mine" already covers. Publisher domains are heavily bot-walled: expect
+`403`, and where text can only be recovered through a search index rather than
+the page, **mark it lower-confidence and say which** — a venue decision can
+turn on the difference. And treat a redirect off the publisher's own domain as
+a failed fetch; policy URLs have been seen issuing off-domain `302`s.
+
+Two things for the close, on top of the shared rules below: an analogue's
+*why* says what it is an analogue **of** (length template, structural
+precedent, must-differentiate competitor), and a venue decision carries **its
+reason** into `STATE.md` — the reason is what a later session needs when a
+referee or co-author reopens it.
+
+---
+
 ## Recording what you found
 
 **Every paper that enters play gets a row in `paper/lit/index.md`** — including
@@ -343,9 +392,27 @@ grep -qF '2006MNRAS.365...11C' manuscript/refs.bib \
 - **Quote the bibcode, and grep for it with `-F`.** Bibcodes contain `&` and
   `.`: unquoted, `2013ARA&A..51..511K` is a background job in most shells, and
   without `-F` every `.` in it is a regex wildcard.
-- **The citekey is the bibcode**, because that is what ADS exports and nothing
-  is adjusted. So `\citep{2006MNRAS.365...11C}`. This surprises people once; it
-  makes every key unambiguous and machine-checkable forever after.
+- **The citekey is whatever the source exported, and is never rekeyed.** For
+  ADS that is the bibcode — `\citep{2006MNRAS.365...11C}` — which surprises
+  people once and then makes every key unambiguous forever. For the other two
+  paths in rule 2 it is not: arXiv's endpoint keys on something like
+  `wang2023voyager`, and a DOI content-negotiated entry on `Author_2026`.
+  Rule 2 forbids adjusting either, so a `refs.bib` with non-ADS entries has
+  mixed key styles. **That is expected, not a defect to tidy** — rekeying for
+  consistency is exactly the "correction" rule 2 exists to stop.
+- **So the dedup grep keys on whatever identifies that entry**, not on a
+  bibcode the entry does not contain. Grep the arXiv id or the DOI instead,
+  still with `-F`:
+
+  ```sh
+  grep -qF '2305.16291' manuscript/refs.bib \
+    || curl -sfL 'https://arxiv.org/bibtex/2305.16291' >> manuscript/refs.bib
+  ```
+
+  Check what arrived before appending — a `curl` that returns an HTML error
+  page sails past nothing and lands in `refs.bib` as garbage. `-f` catches an
+  HTTP error; it does not catch a `200` that is not BibTeX. One `head -1`
+  showing `@article{`, `@inproceedings{` or similar is enough.
 - `export` exits **3** and names them if ADS returned nothing for a bibcode —
   a typo'd bibcode otherwise appends silently and surfaces much later as an
   undefined citation. Check it.

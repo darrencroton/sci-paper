@@ -65,6 +65,9 @@ astronomy routinely holds millions of files, and `ls -R` on it would flood the
 session before a single note has been read. If a specific data file or table
 matters, the author will point at it.
 
+**If little or nothing turns up, the paper's subject may be the working
+directory itself** — a software or instrument paper. See §1b.
+
 ### 1a. Settle the workspace root before anything writes a path
 
 Do this now, not at §5. Everything after this point — the figure conversions in
@@ -116,6 +119,32 @@ Nothing the author owns moves into `<ws>`, then or later.
 
 Report what is there before reading it — how many notes, how many figures, is
 there code, are there tables. The author often does not know either.
+
+### 1b. When the paper's subject is the working directory itself
+
+A software or instrument paper. Nothing about the process changes: the author
+still keeps `notes/`, still has opinions and direction that belong in the
+paper, and may well make figures for it. What changes is only where *some* of
+the material lives — the repository is itself a source, alongside the notes.
+
+Worth reading, where they exist: the README and any `AGENTS.md`/`CLAUDE.md`
+(the rationale is usually there and nowhere else); machine-readable config,
+schemas or databases (precise, and often a table straight off); recorded runs,
+logs and changelogs (the nearest thing to results, and where real failures are
+written down); the code, entry points first; the tests, which say what the
+authors think correctness means; and the git history.
+
+**Read the git history with `--all`.** `git log --all`, `git branch -a`, and
+`git diff --stat main...<branch>` for anything substantial. Unmerged branches
+hold the experiment that worked but was never tidied, the fix nobody merged,
+the run scripts from the one time it went on a cluster. In the run this
+section came from, the project's best single piece of evidence — a correctness
+comparison answering a question the author and the agent both believed was
+open — sat on a branch four months stale. It also answers questions the prose
+cannot, so check the README's claims against it rather than accepting them.
+
+Record in the workspace `CLAUDE.md` where this paper's material actually is,
+as for any other paper (§5d).
 
 ## 2. Read the notes and any tables
 
@@ -249,25 +278,40 @@ mkdir -p notes figures
 Never move or copy the author's existing material to make the layout match a
 diagram.
 
-### 5b. Wire the working-directory `CLAUDE.md` index
+### 5b. Wire the working directory's agent-instruction file with an index
 
 **The workspace's own `CLAUDE.md` is already done** — §5a's wholesale copy of
 `skeleton/workspace/.` placed it at `<ws>/CLAUDE.md` along with everything
 else; there is nothing further to do for it here beyond filling its
-placeholders at §5d. This step is only about the **working-directory**
-`CLAUDE.md`, which is a different file with a different job: an index,
+placeholders at §5d. This step is only about the **working directory's** own
+instruction file, which is a different file with a different job: an index,
 nothing more. Skip it and a session starting at the project root has no way to
 find the workspace, even though the workspace itself is fully wired.
 
-If there is **no** `CLAUDE.md` at the working directory, copy the skeleton's
-and fill in `<ws>`'s row:
+**Follow the host repository's convention — do not impose one.** Which file
+this is belongs to the project:
+
+```sh
+ls -l AGENTS.md CLAUDE.md .claude/CLAUDE.md 2>/dev/null
+```
+
+`AGENTS.md` where present, otherwise `CLAUDE.md`. Where one is a **symlink**
+to the other (`ls -l` is why the listing is long-form), append to the real
+file — writing through the link works but records the change against the wrong
+path in every later diff. Where neither exists, copy the skeleton's and fill
+in `<ws>`'s row:
 
 ```sh
 cp -n "<sci-paper>/skeleton/root/CLAUDE.md" ./CLAUDE.md
 ```
 
-If there **is** one — the common case in an existing project — do not overwrite
-it and do not rewrite the author's content. Say what you are about to add, get a
+Where both exist as independent real files, ask which is authoritative.
+
+**Where the file is a checked-in contract** — a gated workflow, a permissions
+table, contributor rules — say what you are about to add and get a yes first.
+
+If the file **exists** — the common case — do not overwrite it and do not
+rewrite the author's content. Say what you are about to add, get a
 yes, and **append one delimited block** (or, on a later run with the block
 already present, **upsert just this workspace's row** — never rewrite the whole
 block, which would drop another paper's entry):
@@ -304,9 +348,9 @@ Three more things about that block:
   name** — `_shared/house-rules.md`'s **The workspace root** is the authority,
   because the directory can be renamed by hand at any time.
 
-If the author would rather their `CLAUDE.md` were not touched at all, the index
-entry goes in `<ws>/paper/CLAUDE-sci-paper.md` instead and they are told it must
-be read manually. Say plainly that this costs the automatic pointer a session
+If the author would rather their instruction file were not touched at all, the
+index entry goes in `<ws>/paper/CLAUDE-sci-paper.md` instead and they are told
+it must be read manually. Say plainly that this costs the automatic pointer a session
 starting at the project root would otherwise get.
 
 ### 5c. The `.gitignore` situation, both of them
@@ -350,7 +394,15 @@ rather than a broken path.
 
 Ask which journal, and **accept "not decided yet"** — early on it usually is
 not, and refusing to start until the author picks one would be exactly the wrong
-gate. The skeleton uses a plain `article` class and switching later is a
+gate.
+
+**If they do not know, say that `/paper-lit venue` answers it** and move on.
+That mode finds the venues whose stated scope covers the paper, quotes the
+scope and the policies that actually discriminate between them, and reports
+what shape papers of this kind take. It is a different job from this one and
+it is often worth running early, because the structural half of its answer
+changes the outline — and an outline is cheap to change now and expensive
+later. Do not run it here; just name it. The skeleton uses a plain `article` class and switching later is a
 preamble change plus a re-fetch; the prose does not care.
 
 If a venue *is* named, fetch its current template. Four things about how:
@@ -404,9 +456,18 @@ Those words are filenames in `_shared/sections/`, which is why nothing else goes
 in the cell. A paper with no results section is allowed.
 
 ## Figures
-| File | Shows | Lands in |
-|---|---|---|
+| File | Shows | Lands in | Status |
+|---|---|---|---|
 ```
+
+`Status` says whether a figure exists, is still to be made, or is waiting on
+something — `blocked: Q7`. `/paper-draft` picks its next section on that
+distinction, so it is worth a word per row.
+
+**Other skills append their own sections here** — `/paper-lit venue` adds
+venue evidence and the structural template. Still the sole authority for the
+argument; just not written by one skill. Do not rewrite a section another
+skill owns.
 
 Propose it, then **discuss it**. Do not present it as decided.
 

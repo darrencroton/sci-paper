@@ -12,7 +12,7 @@ exist and get written. That is the whole mechanism.
 
 | File | Read | Lifespan | Holds |
 |---|---|---|---|
-| `CLAUDE.md` (working directory) | automatically | stable | **an index only** — which `sci-paper-workspace*/` directories exist here and their short names; see **The workspace root** in `house-rules.md` |
+| the working directory's agent-instruction file — `AGENTS.md` or `CLAUDE.md`, whichever the project uses (`/paper-start` §5b) | automatically | stable | **an index only** — which `sci-paper-workspace*/` directories exist here and their short names; see **The workspace root** in `house-rules.md` |
 | `CLAUDE.md` (workspace root) | automatically, once inside it | stable | **how to behave, and where things are** — the sci-paper install path, the directory map, venue, build command, the pointer to `STATE.md` |
 | `paper/STATE.md` | first action of every session | **only true today** | **where we are** — section status, what is settled, what is open, what to do next |
 | `paper/journal.md` | on demand | permanent | **how we got here** — dated entries: discussed, decided, changed, open |
@@ -111,12 +111,21 @@ Nothing is ever edited in the journal. The correction is the newer entry.
 
 ## open-questions.md
 
-Three fields, no more: an id, a status with its date, the question.
+Three fields: an id, a status with its date, the question.
 
 ```markdown
 - **Q7** _open_ · 2026-08-21 · Is the 100-particle cut the right one for the morphology claim?
 - **Q4** _resolved 2026-08-19_ · Which cosmology to quote → WMAP1; see journal 2026-08-19
 ```
+
+Statuses are `_open_` and `_resolved <date>_`. Nothing else — a question with
+a recommendation attached is still open, and inventing a middle status hides
+that from `STATE.md`.
+
+**One line is the norm, not the limit.** A question may carry what it needs to
+be actionable — evidence already checked, the command that would answer it,
+why it blocks what it blocks. Keep the three fields and the greppable id;
+anything that is no longer a question belongs in `outline.md` or `STATE.md`.
 
 Ids are referenced from `\gap{q}` markers and from `STATE.md`. Resolved
 questions stay in the file — they are the cheapest record of why something is
@@ -135,6 +144,17 @@ whether or not it has been read:
 | 2006MNRAS.365...11C | Croton+06 | the radio-mode model we compare against | yes |
 | 2015MNRAS.451.2663H | Henriques+15 | later calibration of the same model | no |
 ```
+
+**Where a work has no bibcode**, put its identifier in that column instead —
+`arXiv:2305.16291`, or a bare DOI — and say so plainly rather than leaving the
+cell empty. Rule 2's other two exporting paths exist precisely for these, and
+a later session that sees a blank first column will go looking in ADS for
+something ADS does not have.
+
+**Where a roster was assembled without `ads.py`** — a web reconnaissance pass,
+say — the bibcodes in it are reconstructed rather than read, and the table
+carries one line at the top saying so. They are re-resolved at export time
+regardless; the note is what stops them being trusted in the meantime.
 
 The *Handle* is what the prose calls the paper. *Why it is in play* is one
 clause, and it is the field that stops the same paper being chased twice in

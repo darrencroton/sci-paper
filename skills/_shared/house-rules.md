@@ -61,10 +61,12 @@ first:
 
 1. If you are already working inside a `sci-paper-workspace*/` directory, that
    is the workspace root. Its own `CLAUDE.md` confirms it.
-2. Otherwise, read the working directory's `CLAUDE.md` index block (the one
-   `/paper-start` appends there — under *sci-paper workspaces in this
-   project*) and match the paper being discussed by its **short name**, never
-   by directory name — the directory can be renamed by hand at any time
+2. Otherwise, read the working directory's **agent-instruction file** — its
+   `AGENTS.md`, or its `CLAUDE.md` where that is what the project uses; the
+   project's own convention decides which, and `/paper-start` §5b resolves it.
+   Look for the index block `/paper-start` appends there, under *sci-paper
+   workspaces in this project*, and match the paper being discussed by its
+   **short name**, never by directory name — the directory can be renamed by hand at any time
    (nothing inside a workspace depends on its own directory name to function),
    **provided the rename keeps the `sci-paper-workspace` prefix** — the glob
    below and the working directory's own `.gitignore` both match on it, and a
@@ -135,6 +137,13 @@ the established body; assembling the bibliography.
 **new** note from what they just said — and only then. The rule exists to stop
 unrequested edits to the author's own words, not to force them to type before
 they can begin. Existing content is never touched.
+
+**The other half of "never run it": say what to run.** On its own the
+prohibition turns "this number does not exist yet" into a dead end. So where a
+value can only come from executing something, write the **exact command** that
+would produce it, mark the value `\gap{number}`, and note the command with the
+question in `paper/open-questions.md`. When the author runs it and records the
+output, that record is an ordinary `% src:` source like any other.
 
 ---
 
@@ -232,12 +241,38 @@ number or the number is not usable.
 **Code is read, never run.** A `% src:` anchor into `code/` points at a
 definition or a literal in the source; it never means anything was executed. A
 result that exists only as the *output* of a run, written down nowhere, has no
-source yet — it is a `\gap{number}` until the author records it.
+source yet — it is a `\gap{number}` until the author records it. **Write the command that
+would produce it** — see *the other half of "never run it"* under **Division
+of labour** above.
 
-### Rule 2 — BibTeX comes verbatim from ADS
+### Rule 2 — BibTeX is exported verbatim, never composed
 
-Never hand-written, never adjusted, never "corrected". `tools/ads.py export` is
-the sole supported path to a `refs.bib` entry.
+**Never hand-written, never adjusted, never "corrected."** An entry someone
+typed out looks exactly like one a machine exported, right up until the volume
+number is wrong.
+
+**Three exporting paths**, because a real bibliography contains work ADS does
+not hold — arXiv preprints never published, proceedings, the computer-science
+literature an AI- or methods-adjacent paper has to cite. Leaving those with no
+legal path does not prevent a composed entry; it guarantees one.
+
+| The work | Path |
+|---|---|
+| anything ADS holds | `python3 <sci-paper>/tools/ads.py export '<bibcode>'` |
+| an arXiv-only preprint | `curl -sfL 'https://arxiv.org/bibtex/<arxiv id>'` |
+| anything else with a DOI | `curl -sfLH 'Accept: application/x-bibtex' 'https://doi.org/<doi>'` |
+
+All three return archive- or publisher-supplied BibTeX. A work with none of
+the three is a `\gap{cite}` until the author supplies one — it is not typed
+out.
+
+**The author may direct which record is used, and often should.** Published
+version or the preprint the community reads; the journal version or the arXiv
+one whose section numbering the prose refers to; a specific revision. That is
+an editorial choice and it is theirs. Where they name it, use it; otherwise
+take the table's order and say in one line which record was used. Directing
+*which* record is exported says nothing about *what it says*, which is not a
+decision at all.
 
 ### Both rules are hard instructions, not gates
 
@@ -311,7 +346,9 @@ acceptable.
 The same applies to `paper/`: `journal.md` is append-only, and `STATE.md` is
 rewritten deliberately, not clobbered.
 
-It also applies to the working directory's `CLAUDE.md` index (**The workspace
-root**, above): a second paper's row in that index is exactly like another
-author's paragraph — upsert your own workspace's row, never rewrite the whole
-block.
+It also applies to the index block in the working directory's
+agent-instruction file (**The workspace root**, above): a second paper's row
+in that index is exactly like another author's paragraph — upsert your own
+workspace's row, never rewrite the whole block. And where that file is a
+checked-in contract for the project rather than personal notes, it is someone
+else's document twice over.
