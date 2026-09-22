@@ -105,6 +105,12 @@ grep -qxF 'sci-paper-workspace*/' .gitignore || printf 'sci-paper-workspace*/\n'
 §5c revisits this same `.gitignore` line only to say what was added and why it
 is a glob; it is not a second write.
 
+**If the `.gitignore` line will live on a feature branch rather than the
+default one**, add it to `.git/info/exclude` as well. That file is local,
+untracked and branch-independent, so the exclusion survives a checkout of a
+branch whose `.gitignore` predates it — otherwise switching away reopens
+exactly the window this ordering closes.
+
 From this point on, `<ws>` is the working directory for every remaining step
 in this skill: `paper/`, `manuscript/` and every bare path below refers to
 `<ws>/paper/`, `<ws>/manuscript/`, and so on — either `cd` into `<ws>` for the

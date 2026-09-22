@@ -394,3 +394,15 @@ call for a diff - but the convention itself conflicts with the stated
 standard, and unwrapping is a whole-repository change with a very large diff.
 Worth a deliberate decision rather than drift: leave it, or do it in one pass
 of its own.
+
+## F11 — a workspace exclusion committed on a feature branch does not hold on other branches
+
+**Severity: moderate. Fixed in `/paper-start` §1a.**
+
+§1a closes a specific window: between `git init`-ing the workspace and the working directory ignoring it, an ordinary `git add -A` would stage the whole workspace as an embedded repository. The ordering works, and it worked in this run.
+
+**Branching reopens it.** When the `stc` author moved the session's converter changes onto a feature branch — the right call, since they had no push rights yet and wanted review before merging — the `.gitignore` line went with them. On `main` the workspace was then untracked and visible, and a `git add -A` there would have staged it. Verified directly: `git show main:.gitignore | grep -c sci-paper-workspace` returned 0.
+
+The fix is one line in `.git/info/exclude`, which is local, untracked and branch-independent. §1a now says to add it there as well whenever the `.gitignore` line will live on a branch rather than the default one.
+
+Worth noting the general shape, because it will recur: **§1a's guarantee is per-branch, and nothing about a workspace's isolation should be.** `.git/info/exclude` is the correct home for an exclusion that is about the developer's local working arrangement rather than about the project, and using it unconditionally would arguably be simpler than the conditional now written. Left conditional for now because the committed `.gitignore` line is also what documents the arrangement to a collaborator, and `.git/info/exclude` documents nothing to anyone.
