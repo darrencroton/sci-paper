@@ -592,6 +592,48 @@ the system usable.
 
 ---
 
+### 11.2 The vehicle: where the remaining phases actually get tested
+
+P4, P5 and P6 all have acceptance criteria that cannot be met by reading a
+skill file. They need a real paper, really being written. The synthetic
+`.dogfood` fixture was retired for precisely this reason (§14), so from here
+the two builds run together.
+
+**The vehicle is the `stc` paper** — a journal paper about the SAGE Universal
+Merger Tree Converter, written in that project's own workspace:
+
+```text
+<the converter checkout>/sci-paper-workspace/
+├── HANDOFF.md      # local, gitignored: the single entry point for BOTH builds
+├── paper/STATE.md  # where the paper stands
+└── ...
+```
+
+Its `HANDOFF.md` is the cross-repo entry point and links back here. Start a
+session there, not here, whenever the work is paper-shaped — which from now on
+is most of it.
+
+**Both outputs are expected from every sitting.** A session writes the paper
+*and* records what this system got wrong while doing it. That is not a side
+effect to tolerate; it is the only mechanism left for advancing §11, and it
+works: eleven findings so far, of which nine came out of ordinary paper work
+rather than from inspecting the skills. The working record is
+`docs/sci-paper - Live-run findings (stc).md` while a run is live; durable
+outcomes land in §14 and §15 and the record is then archived.
+
+**What each remaining phase needs from the vehicle:**
+
+| Phase | Needs |
+|---|---|
+| **P4** `/paper-iterate` | a **drafted body** — §7.3's moves run by hand against real prose. An outline is not enough, so P4 waits on the paper's methods and results sections existing |
+| **P5** `/paper-frame` + `/paper-finish` | a **completed body**, and a venue actually chosen, since `/paper-finish` needs `_shared/venues/<venue>.md` written against a real one |
+| **P6** dogfood end to end | the paper going to submission |
+
+So the ordering is not a choice: the paper's progress gates the build. Pushing
+the paper forward *is* pushing §11 forward.
+
+---
+
 ## 12. Deliberately not in v1
 
 Named so that scope creep is visible when it is proposed:
